@@ -1,8 +1,12 @@
 package ru.netology.nmedia.adapter
 
+import android.content.res.ColorStateList
+import android.graphics.PorterDuff
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.core.graphics.component2
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -46,17 +50,24 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            countLikes.text = post.likes.toString()
-            countShared.text = post.count(post.shared)
-            countViewed.text = post.viewed.toString()
-            likes.setImageResource(
+            likes.text = post.likes.toString()
+            shares.text = post.count(post.shared)
+            viewed.text = post.viewed.toString()
+            likes.setIconResource(
                 if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24
             )
+            likes.isChecked = post.likedByMe
+
+            likes.setIconTintResource(R.color.like_bunnot_tint)
             likes.setOnClickListener {
                 callback.onLiked(post)
+                likes.isChecked = !likes.isChecked
+                likes.backgroundTintMode = PorterDuff.Mode.CLEAR
+                likes.rippleColor = ColorStateList.valueOf(0).withAlpha(0)
             }
-            shared.setOnClickListener {
+            shares.setOnClickListener {
                 callback.onShared(post)
+                shares.isChecked = false
             }
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply{

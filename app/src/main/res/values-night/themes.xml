@@ -13,4 +13,11 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+    <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="iconTint">@color/like_bunnot_tint</item>
+        <item name="iconPadding">@dimen/icon_button_padding</item>
+        <item name="android:maxWidth">@dimen/icon_button_min_size</item>
+        <item name="android:maxHeight">@dimen/icon_button_min_size</item>
+        <item name="backgroundColor">@android:color/transparent</item>
+    </style>
 </resources>

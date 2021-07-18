@@ -3,4 +3,7 @@
     <dimen name="offset">16dp</dimen>
     <dimen name="avatar_size">48dp</dimen>
     <dimen name="little_offset">5dp</dimen>
+    <dimen name="icon_button_padding">12dp</dimen>
+    <dimen name="icon_button_min_size">48dp</dimen>
+    <dimen name="icon_max_size">24dp</dimen>
 </resources>

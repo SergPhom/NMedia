@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.data.observe(this) { posts ->
             adapter.submitList(posts)
-//            { binding.list.smoothScrollToPosition(0) } функция скролинга с нулевой позиции
+//            { binding.list.smoothScrollToPosition(0) } функция скролинга к нулевой позиции
         }
 
         viewModel.edited.observe(this) { post ->
