@@ -1,5 +1,7 @@
 package ru.netology.nmedia.dto
 
+import android.text.Editable
+
 data class Post(
     val id: Long,
     val author: String,
@@ -8,8 +10,9 @@ data class Post(
     val likedByMe: Boolean,
     val likes: Long,
     val shared: Long,
-    val viewed: Long
-){
+    val viewed: Long,
+    val video: String? = null
+) {
 
     fun count(value: Long): String = when(value){
         in 1000..9999 -> "${value/1000}" +

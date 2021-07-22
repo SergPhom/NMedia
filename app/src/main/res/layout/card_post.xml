@@ -115,8 +115,43 @@
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/ground_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="button_group"/>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:iconGravity="top"
+        app:layout_constraintTop_toBottomOf="@id/ground_barrier"
+        app:layout_constraintStart_toStartOf="parent"
+        app:icon="@drawable/ic_video_placeholser_300"
+        app:iconTint="?attr/colorControlNormal"
+        />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/video_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/video"
+        app:layout_constraintStart_toStartOf="@id/video"
+        app:layout_constraintEnd_toEndOf="@id/video"
+        app:layout_constraintBottom_toBottomOf="@id/video"
+        android:contentDescription="@string/description_post_save"
+        app:srcCompat="@drawable/ic_video_play_24"
+        tools:ignore="VectorDrawableCompat"
+        />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/video_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="video, video_play"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

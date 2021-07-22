@@ -4,13 +4,17 @@ import android.content.res.ColorStateList
 import android.graphics.PorterDuff
 import android.os.Build
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.activity.result.launch
 import androidx.core.graphics.component2
+import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
+import ru.netology.nmedia.activity.NewPostActivity
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 
@@ -20,6 +24,7 @@ interface Callback {
     fun onShared(post: Post){}
     fun onRemove(post: Post){}
     fun onEdit(post: Post){}
+    fun onPlay(post: Post){}
 }
 
 class PostsAdapter(
@@ -86,6 +91,13 @@ class PostViewHolder(
                         }
                     }
                 }.show()
+            }
+            if (post.video != null) videoGroup.visibility = View.VISIBLE
+            video.setOnClickListener {
+                callback.onPlay(post)
+            }
+            videoPlay.setOnClickListener {
+                callback.onPlay(post)
             }
         }
     }
