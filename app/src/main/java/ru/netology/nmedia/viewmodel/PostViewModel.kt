@@ -1,19 +1,11 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import androidx.activity.result.launch
-import androidx.core.content.ContextCompat.startActivity
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import ru.netology.nmedia.MainActivity
-import ru.netology.nmedia.activity.NewPostActivity
-import ru.netology.nmedia.activity.NewPostResultContract
-import ru.netology.nmedia.adapter.Callback
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryInMemoryImpl
+import ru.netology.nmedia.repository.PostRepositoryInFileImpl
 
 private val empty = Post(
     id = 0,
@@ -26,9 +18,9 @@ private val empty = Post(
     viewed = 0L
 )
 
-class PostViewModel : ViewModel() {
+class PostViewModel(application: Application) : AndroidViewModel(application){
 
-    private val repository: PostRepository = PostRepositoryInMemoryImpl()
+    private val repository: PostRepository = PostRepositoryInFileImpl(application)
     val data get() = repository.data
     val edited = MutableLiveData(empty)
 

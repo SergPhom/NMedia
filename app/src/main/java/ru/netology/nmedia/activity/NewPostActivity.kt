@@ -30,17 +30,6 @@ class NewPostActivity : AppCompatActivity() {
             binding.group.visibility = View.VISIBLE
         }
 
-//        viewModel.edited.observe(this) { post ->
-//            if (post.id == 0L) return@observe
-//            binding.group.visibility = View.VISIBLE
-//            with(binding.content){
-//                requestFocus()
-//                setText(post.content)
-//            }
-//            binding.editPost.setText(post.content)
-//        }
-
-
         binding.ok.setOnClickListener {
             val intent = Intent()
             if (binding.content.text.isNullOrBlank()) {
@@ -53,12 +42,9 @@ class NewPostActivity : AppCompatActivity() {
             finish()
         }
 
-
-
         binding.cancelButton.setOnClickListener {
             with(binding.content){
                 viewModel.cancel()
-
                 setText("")
                 clearFocus()
                 AndroidUtils.hideKeyboard(this)

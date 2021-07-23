@@ -1,12 +1,20 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.LiveData
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import ru.netology.nmedia.dto.Post
 
-class PostRepositoryInMemoryImpl : PostRepository {
+class PostRepositoryInFileImpl (private val context: Context): PostRepository {
     private var nextID = 1L
-    private var posts = listOf(
+    private val gson = Gson()
+    private val type = TypeToken.getParameterized(List::class.java, Post::class.java).type
+    private val filename = "posts.json"
+    private var posts = emptyList<Post>()
+
+    val postsDefault = listOf(
         Post(
             id = nextID++,
             author = "Нетология. Университет интернет-профессий будущего",
@@ -54,13 +62,32 @@ class PostRepositoryInMemoryImpl : PostRepository {
 
     override val data = MutableLiveData(posts)
 
+    init {
+        context.openFileOutput(filename, Context.MODE_PRIVATE).bufferedWriter().use {
+            it.write(gson.toJson(postsDefault))
+        }
+
+        val file = context.filesDir.resolve(filename)
+        if (file.exists()) {
+            context.openFileInput(filename).bufferedReader().use {
+                posts = gson.fromJson(it, type)
+                data.value = posts
+//                Log.i("TAG", "${file.absolutePath}")
+            }
+        } else {
+            sync()
+        }
+    }
+
     override fun onLikeButtonClick(id: Long) {
-        val posts = checkNotNull(data.value).map { if (it.id != id) it
-        else it.copy(likedByMe = !it.likedByMe, likes = when(it.likedByMe){
-            false -> it.likes + 1
-            else -> it.likes - 1
-        }) }
+        val posts = posts.map {
+            if (it.id != id) it else it.copy(
+                likedByMe = !it.likedByMe,
+                likes = if (it.likedByMe) it.likes - 1 else it.likes + 1
+            )
+        }
         data.value = posts
+        sync()
     }
 
     override fun onShareButtonClick(id: Long) {
@@ -70,8 +97,9 @@ class PostRepositoryInMemoryImpl : PostRepository {
     }
 
     override fun onRevomeClick(id: Long) {
-        val posts = posts.filter{it.id != id}
+        val posts = posts.filter { it.id != id }
         data.value = posts
+        sync()
     }
 
     override fun onSaveButtonClick(post: Post) {
@@ -86,11 +114,20 @@ class PostRepositoryInMemoryImpl : PostRepository {
                 viewed = 0L
             )) + posts
             data.value = posts
-            return
-        }
-        posts = posts.map{
-            if(it.id != post.id) it else it.copy(content = post.content)
+        }else {
+            posts = posts.map {
+                if (it.id != post.id) it else it.copy(content = post.content)
+            }
         }
         data.value = posts
+        sync()
+    }
+
+    private fun sync() {
+        context.openFileOutput(filename, Context.MODE_PRIVATE).bufferedWriter().use {
+            it.write(gson.toJson(posts))
+        }
+        val file = context.filesDir.resolve(filename)
+//        Log.i("TAG", "${file.absolutePath}")
     }
 }
