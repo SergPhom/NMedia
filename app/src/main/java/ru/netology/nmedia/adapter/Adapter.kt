@@ -86,7 +86,9 @@ class PostViewHolder(
                     }
                 }.show()
             }
-            if (post.video != null) videoGroup.visibility = View.VISIBLE
+            if (post.video != null)
+                videoGroup.visibility = View.VISIBLE
+
             video.setOnClickListener {
                 callback.onPlay(post)
             }

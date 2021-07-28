@@ -1,6 +1,7 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.dto.Post
@@ -52,6 +53,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun changeContent(content: String) {
+        //Log.i("TAG", "${edited.value}")
         val text = content.trim()
         if (edited.value?.content == text) {
             return

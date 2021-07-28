@@ -29,7 +29,8 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
             likedByMe = false,
             likes = 105,
             shared = 26,
-            viewed = 500
+            viewed = 500,
+            video = null
         ), Post(
             id = nextID++,
             author = "Нетология. Университет интернет-профессий будущего",
@@ -57,7 +58,8 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
             likedByMe = false,
             likes = 105,
             shared = 22487576,
-            viewed = 500
+            viewed = 500,
+            video = null
         ))
 
     override val data = MutableLiveData(posts)
@@ -80,7 +82,7 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
     }
 
     override fun onLikeButtonClick(id: Long) {
-        val posts = posts.map {
+        posts = posts.map {
             if (it.id != id) it else it.copy(
                 likedByMe = !it.likedByMe,
                 likes = if (it.likedByMe) it.likes - 1 else it.likes + 1
@@ -91,13 +93,13 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
     }
 
     override fun onShareButtonClick(id: Long) {
-        val posts = checkNotNull(data.value).map { if (it.id != id) it
+        posts = checkNotNull(data.value).map { if (it.id != id) it
         else it.copy( shared = it.shared+1) }
         data.value = posts
     }
 
     override fun onRevomeClick(id: Long) {
-        val posts = posts.filter { it.id != id }
+        posts = posts.filter { it.id != id }
         data.value = posts
         sync()
     }
@@ -111,9 +113,9 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
                 published = "now",
                 likes = 0L,
                 shared = 0L,
-                viewed = 0L
+                viewed = 0L,
+                video = null
             )) + posts
-            data.value = posts
         }else {
             posts = posts.map {
                 if (it.id != post.id) it else it.copy(content = post.content)
@@ -127,7 +129,6 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
         context.openFileOutput(filename, Context.MODE_PRIVATE).bufferedWriter().use {
             it.write(gson.toJson(posts))
         }
-        val file = context.filesDir.resolve(filename)
 //        Log.i("TAG", "${file.absolutePath}")
     }
 }

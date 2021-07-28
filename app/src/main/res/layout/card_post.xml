@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/offset"
-    tools:context=".MainActivity">
+    tools:context=".FeedFragment">
 
     <ImageView
         android:id="@+id/avatar"
@@ -24,10 +24,6 @@
         android:clickable="true"
         android:ellipsize="marquee"
         android:fadingEdge="horizontal"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:scrollHorizontally="true"
         android:singleLine="true"
         app:layout_constraintBottom_toTopOf="@+id/published"
         app:layout_constraintEnd_toStartOf="@id/menu"
