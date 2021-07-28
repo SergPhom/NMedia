@@ -5,10 +5,13 @@ import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Adapter
+import android.widget.AdapterView
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -20,6 +23,7 @@ interface Callback {
     fun onRemove(post: Post){}
     fun onEdit(post: Post){}
     fun onPlay(post: Post){}
+    fun onSingleView(post: Post){}
 }
 
 class PostsAdapter(
@@ -52,11 +56,11 @@ class PostViewHolder(
             likes.text = post.likes.toString()
             shares.text = post.count(post.shared)
             viewed.text = post.viewed.toString()
+
             likes.setIconResource(
                 if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24
             )
             likes.isChecked = post.likedByMe
-
             likes.setIconTintResource(R.color.like_bunnot_tint)
             likes.setOnClickListener {
                 callback.onLiked(post)
@@ -64,10 +68,12 @@ class PostViewHolder(
                 likes.backgroundTintMode = PorterDuff.Mode.CLEAR
                 likes.rippleColor = ColorStateList.valueOf(0).withAlpha(0)
             }
+
             shares.setOnClickListener {
                 callback.onShared(post)
                 shares.isChecked = false
             }
+
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply{
                     inflate(R.menu.menu_post)
@@ -86,6 +92,7 @@ class PostViewHolder(
                     }
                 }.show()
             }
+
             if (post.video != null)
                 videoGroup.visibility = View.VISIBLE
 
@@ -95,6 +102,11 @@ class PostViewHolder(
             videoPlay.setOnClickListener {
                 callback.onPlay(post)
             }
+
+            author.setOnClickListener{ callback.onSingleView(post)}
+            avatar.setOnClickListener{ callback.onSingleView(post)}
+            content.setOnClickListener{ callback.onSingleView(post)}
+            published.setOnClickListener{ callback.onSingleView(post)}
         }
     }
 }
