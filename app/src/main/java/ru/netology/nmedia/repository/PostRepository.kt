@@ -7,6 +7,6 @@ interface PostRepository {
     val data: LiveData<List<Post>>
     fun onLikeButtonClick(id: Long)
     fun onShareButtonClick(id: Long)
-    fun onRevomeClick(id: Long)
+    fun onRemoveClick(id: Long)
     fun onSaveButtonClick(post: Post)
 }

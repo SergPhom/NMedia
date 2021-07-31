@@ -1,7 +1,6 @@
 package ru.netology.nmedia.repository
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -28,7 +27,7 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
             published = "21 мая в 18:36",
             likedByMe = false,
             likes = 105,
-            shared = 26,
+            shares = 26,
             viewed = 500,
             video = null
         ), Post(
@@ -40,7 +39,7 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
             published = "18 сентября в 10:12",
             likedByMe = false,
             likes = 155,
-            shared = 22456,
+            shares = 22456,
             viewed = 550,
             video = "https://www.youtube.com/watch?v=WhWc3b3KhnY"
         ),
@@ -57,7 +56,7 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
             published = "21 мая в 18:36",
             likedByMe = false,
             likes = 105,
-            shared = 22487576,
+            shares = 22487576,
             viewed = 500,
             video = null
         ))
@@ -74,7 +73,6 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
             context.openFileInput(filename).bufferedReader().use {
                 posts = gson.fromJson(it, type)
                 data.value = posts
-//                Log.i("TAG", "${file.absolutePath}")
             }
         } else {
             sync()
@@ -94,11 +92,11 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
 
     override fun onShareButtonClick(id: Long) {
         posts = checkNotNull(data.value).map { if (it.id != id) it
-        else it.copy( shared = it.shared+1) }
+        else it.copy( shares = it.shares+1) }
         data.value = posts
     }
 
-    override fun onRevomeClick(id: Long) {
+    override fun onRemoveClick(id: Long) {
         posts = posts.filter { it.id != id }
         data.value = posts
         sync()
@@ -112,7 +110,7 @@ class PostRepositoryInFileImpl (private val context: Context): PostRepository {
                 likedByMe = false,
                 published = "now",
                 likes = 0L,
-                shared = 0L,
+                shares = 0L,
                 viewed = 0L,
                 video = null
             )) + posts

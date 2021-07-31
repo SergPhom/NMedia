@@ -1,9 +1,11 @@
 package ru.netology.nmedia.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -14,9 +16,9 @@ import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class NewPostFragment : Fragment() {
-    companion object{
-        var Bundle.textArg: String? by StringArg
-    }
+//    companion object{
+//        var Bundle.textArg: String? by StringArg
+//    }
 
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment
@@ -27,18 +29,35 @@ class NewPostFragment : Fragment() {
         savedInstanceState: Bundle?
     ):View {
 
+
         val binding = FragmentNewPostBinding.inflate(
             inflater,
             container,
             false)
+
+        val callback = object : OnBackPressedCallback(true){
+
+            override fun handleOnBackPressed() {
+                viewModel.draft = binding.content.text.toString()
+                findNavController().navigateUp()
+            }
+
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(callback)
 
         binding.group.visibility = View.GONE
         binding.content.requestFocus()
 
 
         binding.content.setText(arguments?.getString("textArg"))
+
         if (!binding.content.text.isEmpty()) binding.group.visibility = View.VISIBLE
-        //binding.content.setText(viewModel.edited.value?.content)
+
+        if(binding.content.text.isNullOrBlank()){
+            binding.content.setText(viewModel.draft)
+            viewModel.draft = ""
+        }
+
 
         binding.ok.setOnClickListener {
             viewModel.changeContent(binding.content.text.toString())
@@ -59,5 +78,8 @@ class NewPostFragment : Fragment() {
 
         }
         return binding.root
+
+
     }
+
 }

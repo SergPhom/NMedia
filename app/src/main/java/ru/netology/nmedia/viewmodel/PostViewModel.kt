@@ -4,9 +4,10 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.repository.PostRepositorySQLiteImpl
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryInFileImpl
 
 private val empty = Post(
     id = 0,
@@ -14,16 +15,20 @@ private val empty = Post(
     author = "",
     likedByMe = false,
     published = "",
-    shared = 0L,
+    shares = 0L,
     likes = 0L,
     viewed = 0L
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application){
 
-    private val repository: PostRepository = PostRepositoryInFileImpl(application)
+    private val repository: PostRepository = PostRepositorySQLiteImpl(
+        AppDb.getInstance(application).postDao)
+//    private val repository: PostRepository = PostRepositoryInFileImpl(
+//        application)
     val data get() = repository.data
     val edited = MutableLiveData(empty)
+    var draft = ""
 
     fun onLiked(post: Post) {
         repository.onLikeButtonClick(post.id)
@@ -34,7 +39,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun onRemove(post: Post) {
-        repository.onRevomeClick(post.id)
+        repository.onRemoveClick(post.id)
     }
 
     fun onEdit(post: Post){
@@ -53,7 +58,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun changeContent(content: String) {
-        //Log.i("TAG", "${edited.value}")
         val text = content.trim()
         if (edited.value?.content == text) {
             return

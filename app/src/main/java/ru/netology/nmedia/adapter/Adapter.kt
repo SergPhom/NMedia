@@ -5,13 +5,10 @@ import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
-import android.widget.AdapterView
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -54,7 +51,7 @@ class PostViewHolder(
             published.text = post.published
             content.text = post.content
             likes.text = post.likes.toString()
-            shares.text = post.count(post.shared)
+            shares.text = post.count(post.shares)
             viewed.text = post.viewed.toString()
 
             likes.setIconResource(
