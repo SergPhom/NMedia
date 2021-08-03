@@ -7,7 +7,7 @@ import ru.netology.nmedia.entity.PostEntity
 
 class PostRepositoryRoomImpl (private val dao: PostDao,
 ) : PostRepository {
-//    private var posts = emptyList<Post>()
+
     override val data = Transformations.map(dao.getAll()) { list ->
         list.map {
             Post(it.id, it.author, it.content, it.published, it.likedByMe, it.likes, it.shares,
@@ -35,9 +35,6 @@ class PostRepositoryRoomImpl (private val dao: PostDao,
 
     override fun onShareButtonClick(id: Long) {
         dao.onShareButtonClick(id)
-//        posts = checkNotNull(data.value).map { if (it.id != id) it
-//        else it.copy( shares = it.shares+1) }
-//        data.value = posts
     }
 }
 val postsDefault = listOf(
