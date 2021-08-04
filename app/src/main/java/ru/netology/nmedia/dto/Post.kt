@@ -1,6 +1,5 @@
 package ru.netology.nmedia.dto
 
-import android.text.Editable
 
 data class Post(
     val id: Long,
@@ -8,9 +7,9 @@ data class Post(
     val content: String,
     val published: String,
     val likedByMe: Boolean,
-    val likes: Long,
-    val shares: Long,
-    val viewed: Long,
+    val likes: Long = 0,
+    val shares: Long = 0,
+    val viewed: Long = 0,
     val video: String? = null
 ) {
 
