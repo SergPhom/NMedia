@@ -7,4 +7,9 @@
     <string name="menu_edit">Редактировать</string>
     <string name="error_empty_content">Поле не может быть пустым</string>
     <string name="chooser_share_post">Поделиться постом</string>
+    <string name="google_play_unavailable">Google Api недоступен</string>
+    <string name="notification_user_liked">Пользователь %1$s поставил лайк посту %2$s</string>
+    <string name="channel_remote_name">Уведомления сервера</string>
+    <string name="channel_remote_description">Уведомления с удаленного сервера</string>
+    <string name="notification_new_post">%1$s опубликовал(а) новый пост</string> /string>
 </resources>
