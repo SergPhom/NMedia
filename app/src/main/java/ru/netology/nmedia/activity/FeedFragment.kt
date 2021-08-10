@@ -18,6 +18,7 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 
 
 class FeedFragment : Fragment() {
+
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment
     )

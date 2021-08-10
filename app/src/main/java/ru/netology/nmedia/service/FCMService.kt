@@ -38,7 +38,7 @@ class FCMService : FirebaseMessagingService() {
         try {
             message.data[action]?.let {
                 when (Action.valueOf(it)) {
-                    // Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
+                    Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
                     Action.NEW_POST -> handleNewPost(
                         gson.fromJson(
                             message.data[content], NewPost::class.java
@@ -87,7 +87,7 @@ class FCMService : FirebaseMessagingService() {
     }
 }
     enum class Action {
-            //LIKE,
+            LIKE,
             NEW_POST,
     }
 

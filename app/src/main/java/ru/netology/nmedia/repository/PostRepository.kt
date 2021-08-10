@@ -9,4 +9,5 @@ interface PostRepository {
     fun onShareButtonClick(id: Long)
     fun onRemoveClick(id: Long)
     fun onSaveButtonClick(post: Post)
+    fun fill()
 }

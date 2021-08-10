@@ -1,5 +1,6 @@
 package ru.netology.nmedia.repository
 
+import android.os.Bundle
 import androidx.lifecycle.Transformations
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
@@ -15,12 +16,6 @@ class PostRepositoryRoomImpl (private val dao: PostDao,
         }
     }
 
-    init {
-        postsDefault.forEach { dao.insert(PostEntity.fromDto(it))}
-
-    }
-
-
     override fun onLikeButtonClick(id: Long) {
         dao.onLikeButtonClick(id)
     }
@@ -35,6 +30,11 @@ class PostRepositoryRoomImpl (private val dao: PostDao,
 
     override fun onShareButtonClick(id: Long) {
         dao.onShareButtonClick(id)
+    }
+    override fun fill(){
+        postsDefault.forEach{
+            dao.insert(PostEntity.fromDto(it))
+        }
     }
 }
 val postsDefault = listOf(

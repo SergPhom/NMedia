@@ -1,11 +1,13 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import android.renderscript.Script
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryRoomImpl
 
@@ -23,7 +25,7 @@ private val empty = Post(
 class PostViewModel(application: Application) : AndroidViewModel(application){
 
     private val repository: PostRepository = PostRepositoryRoomImpl(
-        AppDb.getInstance(context = application).postDao()
+        AppDb.getInstance(context = application).postDao(),
     )
 //    private val repository: PostRepository = PostRepositoryInFileImpl(
 //        application)
@@ -64,5 +66,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
             return
         }
         edited.value = edited.value?.copy(content = text)
+    }
+
+    fun fillPosts() {
+        repository.fill()
     }
 }
