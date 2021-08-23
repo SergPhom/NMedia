@@ -5,17 +5,17 @@ import android.content.res.ColorStateList
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSinglePostBinding
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class SinglePostFragment: Fragment() {
@@ -38,8 +38,7 @@ class SinglePostFragment: Fragment() {
 //        val postLiveData = MutableLiveData(post)
 
         viewModel.data.observe(viewLifecycleOwner) {
-            val post = viewModel.data.value
-                ?.find { it.id == arguments?.getLong("postIdArg") }
+            val post =  arguments?.getParcelable<Post>("ARG_POST")
             with(binding) {
                 if (post != null) {
 
@@ -47,20 +46,19 @@ class SinglePostFragment: Fragment() {
                     author.text = post.author
                     published.text = post.published
                     content.text = post.content
-                    likes.text = post.likes.toString()
+                    likes.text = "${post.likes}"
                     shares.text = post.count(post.shares)
-                    viewed.text = post.viewed.toString()
+                    viewed.text = "${post.viewed}"
 
                     likes.setIconResource(
                         if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24
                     )
                     likes.isChecked = post.likedByMe
-                    likes.setIconTintResource(R.color.like_bunnot_tint)
+                    likes.setIconTintResource(R.color.like_button_tint)
                     likes.setOnClickListener {
                         viewModel.onLiked(post)
-                        likes.isChecked = !likes.isChecked
-                        likes.backgroundTintMode = PorterDuff.Mode.CLEAR
-                        likes.rippleColor = ColorStateList.valueOf(0).withAlpha(0)
+//                        likes.backgroundTintMode = PorterDuff.Mode.CLEAR
+//                        likes.rippleColor = ColorStateList.valueOf(0).withAlpha(0)
                     }
 
                     shares.setOnClickListener {
@@ -74,7 +72,7 @@ class SinglePostFragment: Fragment() {
                         val shareIntent =
                             Intent.createChooser(intent, getString(R.string.chooser_share_post))
                         startActivity(shareIntent)
-                    }
+                        }
 
                     menu.setOnClickListener {
                         PopupMenu(it.context, it).apply {
@@ -101,16 +99,17 @@ class SinglePostFragment: Fragment() {
                         }.show()
                     }
 
-                    if (post.video != null)
+                    if (post.video != null) {
                         videoGroup.visibility = View.VISIBLE
 
-                    video.setOnClickListener {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
-                        startActivity(intent)
-                    }
-                    videoPlay.setOnClickListener {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
-                        startActivity(intent)
+                        video.setOnClickListener {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
+                            startActivity(intent)
+                        }
+                        videoPlay.setOnClickListener {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
+                            startActivity(intent)
+                        }
                     }
                 }
             }

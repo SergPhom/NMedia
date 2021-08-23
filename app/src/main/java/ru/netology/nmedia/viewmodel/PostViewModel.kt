@@ -1,15 +1,16 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
-import android.renderscript.Script
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryRoomImpl
+import ru.netology.nmedia.repository.PostRepositoryImpl
+import ru.netology.nmedia.util.SingleLiveEvent
+import java.io.IOException
+import kotlin.concurrent.thread
 
 private val empty = Post(
     id = 0,
@@ -24,40 +25,43 @@ private val empty = Post(
 
 class PostViewModel(application: Application) : AndroidViewModel(application){
 
-    private val repository: PostRepository = PostRepositoryRoomImpl(
-        AppDb.getInstance(context = application).postDao(),
-    )
-//    private val repository: PostRepository = PostRepositoryInFileImpl(
-//        application)
-    val data = repository.data
+    private val repository: PostRepository = PostRepositoryImpl()
+    val _data = MutableLiveData(FeedModel())
+    val data: LiveData<FeedModel>
+        get() = _data
     val edited = MutableLiveData(empty)
+    private val _postCreated = SingleLiveEvent<Unit>()
+    val postCreated: LiveData<Unit>
+        get() = _postCreated
     var draft = ""
 
-    fun onLiked(post: Post) {
-        repository.onLikeButtonClick(post.id)
+    init {
+        loadPosts()
     }
 
-    fun onShared(post: Post) {
-        repository.onShareButtonClick(post.id)
-    }
-
-    fun onRemove(post: Post) {
-        repository.onRemoveClick(post.id)
-    }
-
-    fun onEdit(post: Post){
-        edited.value = post
+    fun loadPosts() {
+        thread {
+            _data.postValue(FeedModel(loading = true))
+            try {
+                val posts = repository.getAll()
+                FeedModel(posts = posts, empty = posts.isEmpty())
+            } catch (e: IOException) {
+                FeedModel(error = true)
+            }.also(_data::postValue)
+        }
     }
 
     fun save() {
         edited.value?.let {
-            repository.onSaveButtonClick(it)
+            thread {
+                repository.onSaveButtonClick(it)
+                _postCreated.postValue(Unit)
+            }
         }
         edited.value = empty
     }
-
-    fun cancel(){
-        edited.value = empty
+    fun onEdit(post: Post){
+        edited.value = post
     }
 
     fun changeContent(content: String) {
@@ -68,7 +72,29 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
         edited.value = edited.value?.copy(content = text)
     }
 
+    fun onLiked(post: Post) {
+        if(post.likedByMe) thread {
+            repository.unlikeById(post.id)
+            loadPosts()
+        } else thread {
+            repository.likeById(post.id)
+            loadPosts()
+        }
+    }
+
+    fun onRemove(post: Post) {
+        thread { repository.onRemoveClick(post.id) }
+    }
+
+    fun onShared(post: Post) {
+        thread { repository.onShareButtonClick(post.id) }
+    }
+
+    fun cancel(){
+        edited.value = empty
+    }
+
     fun fillPosts() {
-        repository.fill()
+        thread { repository.fill(); loadPosts() }
     }
 }

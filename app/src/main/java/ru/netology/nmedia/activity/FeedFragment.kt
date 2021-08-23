@@ -7,9 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.gson.Gson
 import ru.netology.nmedia.adapter.Callback
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
@@ -67,15 +69,26 @@ class FeedFragment : Fragment() {
             }
 
             override fun onSingleView(post: Post) {
-                val bundle = bundleOf("postIdArg" to post.id)
-                findNavController().navigate(R.id.action_feedFragment_to_singlePostFragment,bundle)
+                val bundle = bundleOf("ARG_POST" to post)
+                findNavController().navigate(R.id.action_feedFragment_to_singlePostFragment, bundle)
             }
         })
 
         binding.list.adapter = adapter
+        binding.refresh.setOnRefreshListener {
+            viewModel.loadPosts()
+            binding.refresh.isRefreshing = false
+        }
 
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
-            adapter.submitList(posts)
+        viewModel.data.observe(viewLifecycleOwner) { state ->
+            adapter.submitList(state.posts)
+            binding.progress.isVisible = state.loading
+            binding.errorGroup.isVisible = state.error
+            binding.emptyText.isVisible = state.empty
+        }
+
+        binding.retryButton.setOnClickListener {
+            viewModel.loadPosts()
         }
 
         binding.fab.setOnClickListener {

@@ -1,7 +1,5 @@
 package ru.netology.nmedia.adapter
 
-import android.content.res.ColorStateList
-import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,20 +48,19 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            likes.text = post.likes.toString()
+            likes.text = "${post.likes}"
             shares.text = post.count(post.shares)
-            viewed.text = post.viewed.toString()
+            viewed.text = "${post.viewed}"
 
             likes.setIconResource(
                 if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24
             )
+//            likes.backgroundTintMode = PorterDuff.Mode.CLEAR
+//            likes.rippleColor = ColorStateList.valueOf(0).withAlpha(0)
             likes.isChecked = post.likedByMe
-            likes.setIconTintResource(R.color.like_bunnot_tint)
+            likes.setIconTintResource(R.color.like_button_tint)
             likes.setOnClickListener {
                 callback.onLiked(post)
-                likes.isChecked = !likes.isChecked
-                likes.backgroundTintMode = PorterDuff.Mode.CLEAR
-                likes.rippleColor = ColorStateList.valueOf(0).withAlpha(0)
             }
 
             shares.setOnClickListener {
@@ -104,6 +101,7 @@ class PostViewHolder(
             avatar.setOnClickListener{ callback.onSingleView(post)}
             content.setOnClickListener{ callback.onSingleView(post)}
             published.setOnClickListener{ callback.onSingleView(post)}
+
         }
     }
 }

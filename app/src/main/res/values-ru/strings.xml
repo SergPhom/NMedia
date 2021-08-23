@@ -12,4 +12,7 @@
     <string name="channel_remote_name">Уведомления сервера</string>
     <string name="channel_remote_description">Уведомления с удаленного сервера</string>
     <string name="notification_new_post">%1$s опубликовал(а) новый пост</string> /string>
+    <string name="retry_loading">Попробовать заново загрузить</string>
+    <string name="empty_posts">Посты не обнаружены.\nЕсли вы создадите новый пост, он появится здесь.</string>
+    <string name="error_loading">Что-то пошло не так. Попробуйте ещё попозже.</string>
 </resources>

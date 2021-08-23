@@ -84,10 +84,15 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/likes"
-            style="@style/Widget.App.Button.OutlinedButton.LikeShare"
             android:text="@sample/posts.json/data/likes"
             app:icon="@drawable/ic_likes_24dp"
-            tools:checked="false" />
+            tools:checked="false"
+            style="@style/Widget.App.Button.OutlinedButton.LikeShare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="@sample/posts.json/data/likes" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/shares"

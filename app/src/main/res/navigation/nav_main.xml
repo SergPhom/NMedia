@@ -29,8 +29,8 @@
             app:popEnterAnim="@android:anim/fade_in"
             app:popExitAnim="@android:anim/fade_out" />
         <argument
-            android:name="postIdArg"
-            app:argType="long" />
+            android:name="ARG_POST"
+            app:argType="ru.netology.nmedia.dto.Post" />
     </fragment>
     <fragment
         android:id="@+id/newPostFragment"

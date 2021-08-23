@@ -14,6 +14,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
 import ru.netology.nmedia.viewmodel.PostViewModel
+import kotlin.concurrent.thread
 
 
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
@@ -23,8 +24,8 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         super.onCreate(savedInstanceState)
         val viewModel: PostViewModel by viewModels()
         val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
-        if(!prefs.contains("IS_THIS_THE_FIRST_LAUNCH")){
-            println("aaaa ${prefs.contains("IS_THIS_THE_FIRST_LAUNCH")}")
+        if(!prefs.contains("FIRST")){
+            //println("aaaa ${prefs.contains("FIRST")}")
             viewModel.fillPosts()
         }
         intent?.let {
@@ -62,12 +63,12 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         }
 
         FirebaseMessaging.getInstance().token.addOnSuccessListener {
-            println("AAAaa $it")
+            //println("AAAaa $it")
         }
     }
     override fun onPause() {
         super.onPause()
         getSharedPreferences("settings", Context.MODE_PRIVATE).edit()
-            .putBoolean("IS_THIS_THE_FIRST_LAUNCH", false).apply()
+            .putBoolean("FIRST", false).apply()
     }
 }
