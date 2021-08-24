@@ -79,7 +79,14 @@ class PostRepositoryImpl: PostRepository {
             .close()
     }
     override fun onShareButtonClick(id: Long) {
-//        dao.onShareButtonClick(id)
+        val request: Request = Request.Builder()
+            .post(id.toString().toRequestBody())
+            .url("${BASE_URL}/api/slow/posts/$id/shares")
+            .build()
+
+        client.newCall(request)
+            .execute()
+            .close()
     }
     override fun fill(){
         postsDefault.forEach{

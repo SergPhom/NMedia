@@ -83,11 +83,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun onRemove(post: Post) {
-        thread { repository.onRemoveClick(post.id) }
+        thread { repository.onRemoveClick(post.id); loadPosts()}
     }
 
     fun onShared(post: Post) {
-        thread { repository.onShareButtonClick(post.id) }
+        thread { repository.onShareButtonClick(post.id); loadPosts() }
     }
 
     fun cancel(){
