@@ -1,8 +1,6 @@
 package ru.netology.nmedia.activity
 
 import android.content.Intent
-import android.content.res.ColorStateList
-import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -35,10 +33,9 @@ class SinglePostFragment: Fragment() {
             false
         )
 
-//        val postLiveData = MutableLiveData(post)
-
         viewModel.data.observe(viewLifecycleOwner) {
-            val post =  arguments?.getParcelable<Post>("ARG_POST")
+            val postId =  arguments?.getParcelable<Post>("ARG_POST")?.id
+            val post = it.posts.find{post -> post.id == postId}
             with(binding) {
                 if (post != null) {
 
@@ -56,9 +53,13 @@ class SinglePostFragment: Fragment() {
                     likes.isChecked = post.likedByMe
                     likes.setIconTintResource(R.color.like_button_tint)
                     likes.setOnClickListener {
-                        viewModel.onLiked(post)
+                        try {
+                            viewModel.onLiked(post)
 //                        likes.backgroundTintMode = PorterDuff.Mode.CLEAR
 //                        likes.rippleColor = ColorStateList.valueOf(0).withAlpha(0)
+                        }catch (e: Throwable){
+                            println("AAA $e")
+                        }
                     }
 
                     shares.setOnClickListener {

@@ -40,23 +40,37 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun loadPosts() {
-        thread {
+//        try {
             _data.postValue(FeedModel(loading = true))
-            try {
-                val posts = repository.getAll()
-                FeedModel(posts = posts, empty = posts.isEmpty())
-            } catch (e: IOException) {
-                FeedModel(error = true)
-            }.also(_data::postValue)
-        }
+            repository.getAllAsync(object : PostRepository.GetAllCallback {
+                override fun onSuccess(posts: List<Post>) {
+                    _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
+                }
+
+                override fun onError(e: Exception) {
+                    _data.postValue(FeedModel(error = true))
+                }
+            })
+//        }
+//        catch (e: Throwable){
+//            println("AAAA $e")
+//        }
     }
 
     fun save() {
         edited.value?.let {
-            thread {
-                repository.onSaveButtonClick(it)
-                _postCreated.postValue(Unit)
-            }
+            repository.savePostAsync(it,
+                object : PostRepository.LikeCallback {
+                    override fun onSuccess() {
+                        loadPosts()
+                        println("AAA save done")
+                    }
+
+                    override fun onError(e: Exception) {
+                        _data.postValue(FeedModel(error = true))
+                    }
+            })
+            _postCreated.postValue(Unit)
         }
         edited.value = empty
     }
@@ -73,21 +87,59 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun onLiked(post: Post) {
-        if(post.likedByMe) thread {
-            repository.unlikeById(post.id)
-            loadPosts()
-        } else thread {
-            repository.likeById(post.id)
-            loadPosts()
+        if (post.likedByMe) {
+            repository.unlikeByIdAsync(post.id,
+                object : PostRepository.LikeCallback {
+                    override fun onSuccess() {
+                        loadPosts()
+                        println("AAA unlike done")
+                    }
+
+                    override fun onError(e: Exception) {
+                        _data.postValue(FeedModel(error = true))
+                    }
+                })
+        } else{
+            repository.likeByIdAsync(post.id,
+                object : PostRepository.LikeCallback {
+                    override fun onSuccess() {
+                        loadPosts()
+                        println("AAA like done")
+                    }
+
+                override fun onError(e: Exception) {
+                    _data.postValue(FeedModel(error = true))
+                }
+            })
         }
     }
 
     fun onRemove(post: Post) {
-        thread { repository.onRemoveClick(post.id); loadPosts()}
+        repository.removeByIdAsync(post.id,
+            object : PostRepository.LikeCallback {
+                override fun onSuccess() {
+                    loadPosts()
+                    println("AAA remove done")
+                }
+
+                override fun onError(e: Exception) {
+                    _data.postValue(FeedModel(error = true))
+                }
+            })
     }
 
     fun onShared(post: Post) {
-        thread { repository.onShareButtonClick(post.id); loadPosts() }
+        repository.sharePostAsync(post.id,
+            object : PostRepository.LikeCallback {
+                override fun onSuccess() {
+                    loadPosts()
+                    println("AAA share done")
+                }
+
+                override fun onError(e: Exception) {
+                    _data.postValue(FeedModel(error = true))
+                }
+            })
     }
 
     fun cancel(){
@@ -95,6 +147,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun fillPosts() {
-        thread { repository.fill(); loadPosts() }
+        repository.fillAsync(object : PostRepository.LikeCallback {
+            override fun onSuccess() {
+                loadPosts()
+                println("AAA fill posts done")
+            }
+
+            override fun onError(e: Exception) {
+                _data.postValue(FeedModel(error = true))
+            }
+        })
     }
 }

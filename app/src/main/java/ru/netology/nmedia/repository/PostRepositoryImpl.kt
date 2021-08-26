@@ -1,16 +1,14 @@
 package ru.netology.nmedia.repository
 
-import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.dto.Post
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
+
 
 
 class PostRepositoryImpl: PostRepository {
@@ -25,72 +23,140 @@ class PostRepositoryImpl: PostRepository {
         private val jsonType = "application/json".toMediaType()
     }
 
-    override fun getAll(): List<Post> {
+    override fun getAllAsync(callback: PostRepository.GetAllCallback){
         val request: Request = Request.Builder()
             .url("${BASE_URL}/api/slow/posts")
             .build()
 
-        return client.newCall(request)
-            .execute()
-            .let { it.body?.string() ?: throw RuntimeException("body is null") }
-            .let {
-                gson.fromJson(it, typeToken.type)
-            }
+        client.newCall(request)
+            .enqueue(object : Callback {
+                override fun onResponse(call: Call, response: Response) {
+                    val body = response.body?.string() ?: throw RuntimeException("body is null")
+                    try {
+                        callback.onSuccess(gson.fromJson(body, typeToken.type))
+                    } catch (e: Exception) {
+                        callback.onError(e)
+                    }
+                }
+
+                override fun onFailure(call: Call, e: IOException) {
+                    callback.onError(e)
+                }
+            })
     }
 
-    override fun likeById(id: Long) {
+    override fun likeByIdAsync(id: Long, callback: PostRepository.LikeCallback){
         val request: Request = Request.Builder()
             .post(id.toString().toRequestBody())
             .url("${BASE_URL}/api/slow/posts/$id/likes")
             .build()
+
         client.newCall(request)
-            .execute()
-            .close()
+            .enqueue(object : Callback {
+                override fun onResponse(call: Call, response: Response) {
+                    try {
+                        callback.onSuccess()
+                    } catch (e: Exception) {
+                        callback.onError(e)
+                    }
+                }
+
+                override fun onFailure(call: Call, e: IOException) {
+                    callback.onError(e)
+                }
+            })
     }
 
-    override fun unlikeById(id: Long) {
+    override fun unlikeByIdAsync(id: Long, callback: PostRepository.LikeCallback){
         val request: Request = Request.Builder()
             .delete(id.toString().toRequestBody())
             .url("${BASE_URL}/api/slow/posts/$id/likes")
             .build()
+
         client.newCall(request)
-            .execute()
-            .close()
+            .enqueue(object : Callback {
+                override fun onResponse(call: Call, response: Response) {
+                    try {
+                        callback.onSuccess()
+                    } catch (e: Exception) {
+                        callback.onError(e)
+                    }
+                }
+
+                override fun onFailure(call: Call, e: IOException) {
+                    callback.onError(e)
+                }
+            })
     }
 
-    override fun onSaveButtonClick(post: Post) {
+    override fun savePostAsync(post: Post, callback: PostRepository.LikeCallback) {
         val request: Request = Request.Builder()
             .post(gson.toJson(post).toRequestBody(jsonType))
             .url("${BASE_URL}/api/slow/posts")
             .build()
+
         client.newCall(request)
-            .execute()
-            .close()
+            .enqueue(object : Callback {
+                override fun onResponse(call: Call, response: Response) {
+                    try {
+                        callback.onSuccess()
+                    } catch (e: Exception) {
+                        callback.onError(e)
+                    }
+                }
+
+                override fun onFailure(call: Call, e: IOException) {
+                    callback.onError(e)
+                }
+            })
     }
 
-    override fun onRemoveClick(id: Long) {
+    override fun removeByIdAsync(id: Long, callback: PostRepository.LikeCallback) {
         val request: Request = Request.Builder()
             .delete()
             .url("${BASE_URL}/api/slow/posts/$id")
             .build()
 
         client.newCall(request)
-            .execute()
-            .close()
+            .enqueue(object : Callback {
+                override fun onResponse(call: Call, response: Response) {
+                    try {
+                        callback.onSuccess()
+                    } catch (e: Exception) {
+                        callback.onError(e)
+                    }
+                }
+
+                override fun onFailure(call: Call, e: IOException) {
+                    callback.onError(e)
+                }
+            })
     }
-    override fun onShareButtonClick(id: Long) {
+
+    override fun sharePostAsync(id: Long, callback: PostRepository.LikeCallback) {
         val request: Request = Request.Builder()
             .post(id.toString().toRequestBody())
             .url("${BASE_URL}/api/slow/posts/$id/shares")
             .build()
 
         client.newCall(request)
-            .execute()
-            .close()
+            .enqueue(object : Callback {
+                override fun onResponse(call: Call, response: Response) {
+                    try {
+                        callback.onSuccess()
+                    } catch (e: Exception) {
+                        callback.onError(e)
+                    }
+                }
+
+                override fun onFailure(call: Call, e: IOException) {
+                    callback.onError(e)
+                }
+            })
     }
-    override fun fill(){
+    override fun fillAsync(callback: PostRepository.LikeCallback){
         postsDefault.forEach{
-            onSaveButtonClick(it)
+            savePostAsync(it, callback)
         }
     }
 }
