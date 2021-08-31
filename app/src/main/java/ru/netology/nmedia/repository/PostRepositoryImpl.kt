@@ -5,7 +5,9 @@ import com.google.gson.reflect.TypeToken
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.enumeration.AttachmentType
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -178,7 +180,10 @@ val postsDefault = listOf(
         likes = 105,
         shares = 26,
         viewed = 500,
-        video = null
+        attachment = Attachment(type = AttachmentType.IMAGE,
+            url = "https://e7.pngegg.com/pngimages/198/669/png-clipart-munchkin-cat-persian-cat-kitten-kitten-cat-like-mammal-animals.png",
+//            url = "https://img11.postila.ru/data/c5/d9/65/04/c5d96504c4a5ff1c67c05de7adb44a6505ea521ee3a7a9caa41976a9dd48a28a.png",
+            description = "netology image", )
     ), Post(
         id = 2,
         author = "Нетология. Университет интернет-профессий будущего",
@@ -190,7 +195,8 @@ val postsDefault = listOf(
         likes = 155,
         shares = 22456,
         viewed = 550,
-        video = "https://www.youtube.com/watch?v=WhWc3b3KhnY"
+        attachment = Attachment(type = AttachmentType.VIDEO,
+            url = "https://www.youtube.com/watch?v=WhWc3b3KhnY", description = "youtube video")
     ),
     Post(
         id = 3,
@@ -209,5 +215,5 @@ val postsDefault = listOf(
         likes = 105,
         shares = 22487576,
         viewed = 500,
-        video = null
+        attachment = null
     ))

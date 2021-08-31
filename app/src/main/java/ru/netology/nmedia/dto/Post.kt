@@ -2,7 +2,7 @@ package ru.netology.nmedia.dto
 
 import android.os.Parcel
 import android.os.Parcelable
-
+import ru.netology.nmedia.enumeration.AttachmentType
 
 
 data class Post(
@@ -14,7 +14,7 @@ data class Post(
     val likes: Long = 0,
     val shares: Long = 0,
     val viewed: Long = 0,
-    val video: String? = null
+    val attachment: Attachment? = null,
 ):Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -26,7 +26,7 @@ data class Post(
         parcel.readLong(),
         parcel.readLong(),
         parcel.readLong(),
-        parcel.readString()
+        parcel.readParcelable<Attachment>(Attachment.javaClass.classLoader)
     )
 
     fun count(value: Long): String = when(value){
@@ -47,7 +47,7 @@ data class Post(
         parcel.writeLong(likes)
         parcel.writeLong(shares)
         parcel.writeLong(viewed)
-        parcel.writeString(video)
+        parcel.writeParcelable(attachment,1)
     }
 
     override fun describeContents(): Int {
@@ -60,6 +60,40 @@ data class Post(
         }
 
         override fun newArray(size: Int): Array<Post?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
+
+
+data class Attachment(
+    val url: String,
+    val description: String,
+    val type: AttachmentType,
+):Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readString()!!,
+        parcel.readString()!!,
+        TODO("type")
+    ) {
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(url)
+        parcel.writeString(description)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Attachment> {
+        override fun createFromParcel(parcel: Parcel): Attachment {
+            return Attachment(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Attachment?> {
             return arrayOfNulls(size)
         }
     }

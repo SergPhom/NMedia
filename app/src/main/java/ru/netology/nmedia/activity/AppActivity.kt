@@ -3,18 +3,15 @@ package ru.netology.nmedia.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
 import ru.netology.nmedia.viewmodel.PostViewModel
-import kotlin.concurrent.thread
 
 
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
@@ -25,7 +22,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         val viewModel: PostViewModel by viewModels()
         val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
         if(!prefs.contains("FIRST")){
-            //println("aaaa ${prefs.contains("FIRST")}")
             viewModel.fillPosts()
         }
         intent?.let {
@@ -63,7 +59,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         }
 
         FirebaseMessaging.getInstance().token.addOnSuccessListener {
-            //println("AAAaa $it")
         }
     }
     override fun onPause() {

@@ -30,7 +30,6 @@
         <item name="android:layout_marginStart">@dimen/little_offset</item>
         <item name="android:textColor">?attr/colorControlNormal</item>
         <item name="strokeColor">@color/transparent</item>
-        <item name="iconTint">@color/like_button_tint</item>
     </style>
 
     <style name="Widget.App.Button.OutlinedButton.Menu" parent="Widget.MaterialComponents.Button.OutlinedButton">

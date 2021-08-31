@@ -1,5 +1,7 @@
 package ru.netology.nmedia.adapter
 
+
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,9 +9,11 @@ import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.enumeration.AttachmentType
 
 
 interface Callback {
@@ -44,7 +48,10 @@ class PostViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post) {
         binding.apply {
-            avatar.setImageResource(R.drawable.ic_avatar_foreground)
+            Glide.with(binding.avatar)
+                .load(R.drawable.ic_avatar_foreground)
+                .circleCrop()
+                .into(binding.avatar)
             author.text = post.author
             published.text = post.published
             content.text = post.content
@@ -55,8 +62,6 @@ class PostViewHolder(
             likes.setIconResource(
                 if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24
             )
-//            likes.backgroundTintMode = PorterDuff.Mode.CLEAR
-//            likes.rippleColor = ColorStateList.valueOf(0).withAlpha(0)
             likes.isChecked = post.likedByMe
             likes.setIconTintResource(R.color.like_button_tint)
             likes.setOnClickListener {
@@ -87,9 +92,17 @@ class PostViewHolder(
                 }.show()
             }
 
-            if (post.video != null)
-                videoGroup.visibility = View.VISIBLE
+            if (post.attachment != null) {
+                when (post.attachment.type){
+                    AttachmentType.VIDEO -> videoGroup.visibility = View.VISIBLE
+                    AttachmentType.IMAGE ->{
+                        Glide.with(imageAttachment)
+                            .load(Uri.parse("${post.attachment.url}"))
+                            .into(imageAttachment)
+                    }
 
+                }
+            }
             video.setOnClickListener {
                 callback.onPlay(post)
             }

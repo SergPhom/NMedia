@@ -6,14 +6,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSinglePostBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class SinglePostFragment: Fragment() {
@@ -32,14 +35,27 @@ class SinglePostFragment: Fragment() {
             container,
             false
         )
+        val callback = object : OnBackPressedCallback(true){
+
+            override fun handleOnBackPressed() {
+                try{
+                    findNavController().navigateUp()
+                }catch (e: Throwable){
+                    println("aaaa $e")
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(callback)
 
         viewModel.data.observe(viewLifecycleOwner) {
             val postId =  arguments?.getParcelable<Post>("ARG_POST")?.id
             val post = it.posts.find{post -> post.id == postId}
             with(binding) {
                 if (post != null) {
-
-                    avatar.setImageResource(R.drawable.ic_avatar_foreground)
+                    Glide.with(binding.avatar)
+                        .load(R.drawable.ic_avatar_foreground)
+                        .circleCrop()
+                        .into(binding.avatar)
                     author.text = post.author
                     published.text = post.published
                     content.text = post.content
@@ -55,8 +71,6 @@ class SinglePostFragment: Fragment() {
                     likes.setOnClickListener {
                         try {
                             viewModel.onLiked(post)
-//                        likes.backgroundTintMode = PorterDuff.Mode.CLEAR
-//                        likes.rippleColor = ColorStateList.valueOf(0).withAlpha(0)
                         }catch (e: Throwable){
                             println("AAA $e")
                         }
@@ -99,17 +113,26 @@ class SinglePostFragment: Fragment() {
                             }
                         }.show()
                     }
-
-                    if (post.video != null) {
-                        videoGroup.visibility = View.VISIBLE
-
-                        video.setOnClickListener {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
-                            startActivity(intent)
-                        }
-                        videoPlay.setOnClickListener {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
-                            startActivity(intent)
+                    if (post.attachment != null) {
+                        when (post.attachment.type){
+                            AttachmentType.VIDEO -> {
+                                videoGroup.visibility = View.VISIBLE
+                                video.setOnClickListener {
+                                    val intent = Intent(Intent.ACTION_VIEW,
+                                        Uri.parse(post.attachment.url))
+                                    startActivity(intent)
+                                }
+                                videoPlay.setOnClickListener {
+                                    val intent = Intent(Intent.ACTION_VIEW,
+                                        Uri.parse(post.attachment.url))
+                                    startActivity(intent)
+                                }
+                            }
+                            AttachmentType.IMAGE ->{
+                                Glide.with(imageAttachment)
+                                    .load(Uri.parse("${post.attachment.url}"))
+                                    .into(imageAttachment)
+                            }
                         }
                     }
                 }

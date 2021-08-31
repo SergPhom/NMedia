@@ -9,8 +9,6 @@ import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
-import java.io.IOException
-import kotlin.concurrent.thread
 
 private val empty = Post(
     id = 0,
@@ -20,7 +18,8 @@ private val empty = Post(
     published = "",
     shares = 0L,
     likes = 0L,
-    viewed = 0L
+    viewed = 0L,
+    attachment = null
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application){
@@ -40,7 +39,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun loadPosts() {
-//        try {
             _data.postValue(FeedModel(loading = true))
             repository.getAllAsync(object : PostRepository.GetAllCallback {
                 override fun onSuccess(posts: List<Post>) {
@@ -51,10 +49,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
                     _data.postValue(FeedModel(error = true))
                 }
             })
-//        }
-//        catch (e: Throwable){
-//            println("AAAA $e")
-//        }
     }
 
     fun save() {
@@ -63,7 +57,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
                 object : PostRepository.LikeCallback {
                     override fun onSuccess() {
                         loadPosts()
-                        println("AAA save done")
                     }
 
                     override fun onError(e: Exception) {
@@ -92,7 +85,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
                 object : PostRepository.LikeCallback {
                     override fun onSuccess() {
                         loadPosts()
-                        println("AAA unlike done")
                     }
 
                     override fun onError(e: Exception) {
@@ -104,7 +96,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
                 object : PostRepository.LikeCallback {
                     override fun onSuccess() {
                         loadPosts()
-                        println("AAA like done")
                     }
 
                 override fun onError(e: Exception) {
@@ -119,7 +110,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
             object : PostRepository.LikeCallback {
                 override fun onSuccess() {
                     loadPosts()
-                    println("AAA remove done")
                 }
 
                 override fun onError(e: Exception) {
@@ -133,7 +123,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
             object : PostRepository.LikeCallback {
                 override fun onSuccess() {
                     loadPosts()
-                    println("AAA share done")
                 }
 
                 override fun onError(e: Exception) {
@@ -150,7 +139,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
         repository.fillAsync(object : PostRepository.LikeCallback {
             override fun onSuccess() {
                 loadPosts()
-                println("AAA fill posts done")
             }
 
             override fun onError(e: Exception) {
