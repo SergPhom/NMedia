@@ -1,9 +1,14 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE
+import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
@@ -39,27 +44,29 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun loadPosts() {
-            _data.postValue(FeedModel(loading = true))
-            repository.getAllAsync(object : PostRepository.GetAllCallback {
-                override fun onSuccess(posts: List<Post>) {
-                    _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
-                }
+        _data.postValue(FeedModel(loading = true))
+        repository.getAllAsync(object : PostRepository.GetAllCallback<List<Post>> {
+            override fun onSuccess(posts: List<Post>) {
+                _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
+            }
 
-                override fun onError(e: Exception) {
-                    _data.postValue(FeedModel(error = true))
-                }
-            })
+            override fun onError(msg: String) {
+                Toast.makeText(getApplication(), msg as CharSequence, Toast.LENGTH_LONG)
+                _data.postValue(FeedModel(error = true))
+            }
+        })
     }
 
     fun save() {
         edited.value?.let {
             repository.savePostAsync(it,
-                object : PostRepository.LikeCallback {
-                    override fun onSuccess() {
+                object : PostRepository.Callback<Post> {
+                    override fun onSuccess(post: Post) {
                         loadPosts()
                     }
 
-                    override fun onError(e: Exception) {
+                    override fun onError(msg: String) {
+                        Toast.makeText(getApplication(), msg as CharSequence, Toast.LENGTH_LONG)
                         _data.postValue(FeedModel(error = true))
                     }
             })
@@ -67,6 +74,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
         }
         edited.value = empty
     }
+
     fun onEdit(post: Post){
         edited.value = post
     }
@@ -78,41 +86,58 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
         }
         edited.value = edited.value?.copy(content = text)
     }
+//                                                                    ****LIKES BLOCK****
+    fun likesChange(update: Post){
+    _data.postValue(data.value?.posts?.let { list->
+        FeedModel(posts = list.map {
+            if(it.id == update.id){
+                it.copy(likes = update.likes, likedByMe = update.likedByMe)
+            }else it })
+    })
+    }
 
     fun onLiked(post: Post) {
         if (post.likedByMe) {
-            repository.unlikeByIdAsync(post.id,
-                object : PostRepository.LikeCallback {
-                    override fun onSuccess() {
-                        loadPosts()
+            repository.dislikeByIdAsync(post.id,
+                object : PostRepository.Callback<Post> {
+                    override fun onSuccess(update: Post) {
+                        likesChange(update)
                     }
 
-                    override fun onError(e: Exception) {
+                    override fun onError(msg: String) {
+                        Toast.makeText(getApplication(), msg as CharSequence, Toast.LENGTH_LONG)
                         _data.postValue(FeedModel(error = true))
                     }
-                })
+                }
+            )
         } else{
             repository.likeByIdAsync(post.id,
-                object : PostRepository.LikeCallback {
-                    override fun onSuccess() {
-                        loadPosts()
+                object : PostRepository.Callback<Post> {
+                    override fun onSuccess(update: Post) {
+                        likesChange(update)
                     }
-
-                override fun onError(e: Exception) {
-                    _data.postValue(FeedModel(error = true))
+                    override fun onError(msg: String) {
+                        Toast.makeText(getApplication(), msg as CharSequence, Toast.LENGTH_LONG)
+                        _data.postValue(FeedModel(error = true))
+                    }
                 }
-            })
+            )
         }
     }
-
+//                                                                   ****REMOVE BLOCK****
     fun onRemove(post: Post) {
-        repository.removeByIdAsync(post.id,
-            object : PostRepository.LikeCallback {
-                override fun onSuccess() {
-                    loadPosts()
+        repository.removeByIdAsync(3L,
+            object : PostRepository.CallbackUnit<Long> {
+                override fun onSuccess(id: Long) {
+                    _data.postValue(data.value?.posts?.let { list ->
+                        FeedModel(posts = list.filter{
+                            it.id != post.id
+                        })
+                    })
                 }
 
-                override fun onError(e: Exception) {
+                override fun onError(msg: String) {
+                    Snackbar.make(getApplication(), msg as CharSequence, LENGTH_INDEFINITE)
                     _data.postValue(FeedModel(error = true))
                 }
             })
@@ -120,15 +145,22 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
 
     fun onShared(post: Post) {
         repository.sharePostAsync(post.id,
-            object : PostRepository.LikeCallback {
-                override fun onSuccess() {
-                    loadPosts()
+            object : PostRepository.Callback<Post>{
+                override fun onSuccess(update: Post) {
+                    _data.postValue(data.value?.posts?.let { list->
+                        FeedModel(posts = list.map {
+                            if(it.id == update.id) it.copy(shares = update.shares)
+                            else it
+                        })
+                    })
                 }
 
-                override fun onError(e: Exception) {
+                override fun onError(msg: String) {
+                    Toast.makeText(getApplication(), msg as CharSequence, Toast.LENGTH_LONG)
                     _data.postValue(FeedModel(error = true))
                 }
-            })
+            }
+        )
     }
 
     fun cancel(){
@@ -136,12 +168,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun fillPosts() {
-        repository.fillAsync(object : PostRepository.LikeCallback {
-            override fun onSuccess() {
-                loadPosts()
+        _data.postValue(FeedModel(loading = true))
+        repository.fillAsync(object : PostRepository.Callback<Post> {
+            override fun onSuccess(post: Post) {
+                _data.postValue(_data.value?.posts
+                    ?.let { FeedModel(posts = it.plus(post)) })
             }
 
-            override fun onError(e: Exception) {
+            override fun onError(msg: String) {
+                Toast.makeText(getApplication(), msg as CharSequence, Toast.LENGTH_LONG)
                 _data.postValue(FeedModel(error = true))
             }
         })

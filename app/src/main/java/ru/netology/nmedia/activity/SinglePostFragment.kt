@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import ru.netology.nmedia.FeedFragment
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSinglePostBinding
 import ru.netology.nmedia.dto.Post
@@ -20,6 +21,13 @@ import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class SinglePostFragment: Fragment() {
+    companion object{
+        fun getNewInstance(post: Post): SinglePostFragment {
+            val singlePostFragment = SinglePostFragment()
+            singlePostFragment.arguments?.putParcelable("ARG_POST", post)
+            return singlePostFragment
+        }
+    }
 
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment

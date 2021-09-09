@@ -22,7 +22,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         val viewModel: PostViewModel by viewModels()
         val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
         if(!prefs.contains("FIRST")){
-            viewModel.fillPosts()
+//            viewModel.fillPosts()
         }
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
@@ -42,6 +42,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
             )
         }
         checkGoogleApiAvailability()
+
     }
 
     private fun checkGoogleApiAvailability() {

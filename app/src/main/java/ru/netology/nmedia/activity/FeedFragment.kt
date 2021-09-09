@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import ru.netology.nmedia.activity.SinglePostFragment
 import ru.netology.nmedia.adapter.Callback
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
@@ -58,8 +59,8 @@ class FeedFragment : Fragment() {
 
             override fun onEdit(post: Post) {
                 viewModel.onEdit(post)
-                val bundle = bundleOf("textArg" to post.content)
-                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment,bundle)
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment,
+                    bundleOf("textArg" to post.content))
             }
 
             override fun onPlay(post: Post) {
@@ -68,8 +69,8 @@ class FeedFragment : Fragment() {
             }
 
             override fun onSingleView(post: Post) {
-                val bundle = bundleOf("ARG_POST" to post)
-                findNavController().navigate(R.id.action_feedFragment_to_singlePostFragment, bundle)
+                findNavController().navigate(R.id.action_feedFragment_to_singlePostFragment,
+                    bundleOf("ARG_POST" to post))
             }
         })
 
