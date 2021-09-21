@@ -12,37 +12,49 @@ class PostRepositoryImpl: PostRepository {
 
     override fun getAllAsync(callback: PostRepository.GetAllCallback<List<Post>>){
         PostsApi.retrofitService.getAll().enqueue(object : retrofit2.Callback<List<Post>> {
+            var counter = 1
             override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
-                println("AAAA ${response.code()}")
                 if (!response.isSuccessful) {
-                    val counter = 5
                     if(counter > 0){
-                        PostsApi.retrofitService.getAll().enqueue(this)
+                            counter--
+                            PostsApi.retrofitService.getAll().enqueue(this)
                     }
                     else {
-                        callback.onError("${response.code()} ${response.message()}")
+                        callback.onError("loading ${response.code()} ${response.message()}")
                         return
                     }
+                }else{
+                    callback.onSuccess(response.body()
+                        ?: throw RuntimeException("AAAA body is null"))
                 }
-                callback.onSuccess(response.body() ?: throw RuntimeException("body is null"))
             }
             override fun onFailure(call: Call<List<Post>>, t: Throwable) {
-                callback.onError(t.toString())
+                callback.onError("loading ${t.toString()}")
             }
         })
     }
 
     override fun savePostAsync(post: Post, callback: PostRepository.Callback<Post>) {
         PostsApi.retrofitService.save(post).enqueue(object : retrofit2.Callback<Post>{
+            var counter = 1
             override fun onResponse(call: Call<Post>, response: Response<Post>) {
                 if(!response.isSuccessful){
-                   callback.onSuccess(post.copy(content = "${response.code()} ${response.message()}"))
+                    if(counter > 0){
+                        counter--
+                        PostsApi.retrofitService.save(post).enqueue(this)
+                    }
+                    else {
+                        callback.onError("saving ${response.code()} ${response.message()}")
+                        return
+                    }
                 }
-                callback.onSuccess(response.body() ?: throw RuntimeException("body is null"))
+                else{
+                    callback.onSuccess(response.body() ?: throw RuntimeException("body is null"))
+                }
             }
 
             override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError(t.toString())
+                callback.onError("saving ${t.toString()}")
             }
 
         })
@@ -50,12 +62,26 @@ class PostRepositoryImpl: PostRepository {
 //                                                                     ***LIKE/DISLIKE****
     override fun likeByIdAsync(id: Long, callback: PostRepository.Callback<Post>){
         PostsApi.retrofitService.likeById(id).enqueue(object : retrofit2.Callback<Post> {
+            var counter = 1
             override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                callback.onSuccess(response.body() ?: return)
+                if(!response.isSuccessful){
+                    if(counter > 0){
+                        counter--
+                        PostsApi.retrofitService.likeById(id).enqueue(this)
+                    }
+                    else {
+                        callback.onError("liking ${response.code()} ${response.message()}")
+                        return
+                    }
+                }
+                else{
+                    callback.onSuccess(response.body() ?:
+                    throw RuntimeException("body is null"))
+                }
             }
 
             override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError(t.toString())
+                callback.onError("liking ${t.toString()}")
             }
 
         })
@@ -63,42 +89,77 @@ class PostRepositoryImpl: PostRepository {
 
     override fun dislikeByIdAsync(id: Long, callback: PostRepository.Callback<Post>){
         PostsApi.retrofitService.dislikeById(id).enqueue(object : retrofit2.Callback<Post>{
+            var counter = 1
             override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                callback.onSuccess(response.body() ?: return)
+                if(!response.isSuccessful){
+                    if(counter > 0){
+                        counter--
+                        PostsApi.retrofitService.dislikeById(id).enqueue(this)
+                    }
+                    else {
+                        callback.onError("disliking ${response.code()} ${response.message()}")
+                        return
+                    }
+                }
+                else{
+                    callback.onSuccess(response.body() ?:
+                    throw RuntimeException("body is null"))
+                }
             }
 
             override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError(t.toString())
+                callback.onError("disliking ${t.toString()}")
             }
         })
     }
 
 //                                                                                ****REMOVE*****
-    override fun removeByIdAsync(id: Long, callback: PostRepository.CallbackUnit<Long>) {
-        PostsApi.retrofitService.removeById(id).enqueue(object: retrofit2.Callback<Long>{
-            override fun onResponse(call: Call<Long>, response: Response<Long>) {
+    override fun removeByIdAsync(id: Long, callback: PostRepository.CallbackUnit<Unit>) {
+        PostsApi.retrofitService.removeById(id).enqueue(object: retrofit2.Callback<Unit>{
+            var counter = 1
+            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
                 if(!response.isSuccessful){
-                    println("AAAA work ${response.code()}")
-                    callback.onError("Пост с id $id вызвал ошибку ${response.code()} ${response.message()}")
+                    if(counter > 0){
+                        counter--
+                        PostsApi.retrofitService.removeById(id).enqueue(this)
+                    }
+                    else {
+                        callback.onError("removing ${response.code()} ${response.message()}")
+                        return
+                    }
                 }
-                println("AAAA dontwork ${response.code()}")
-                callback.onSuccess(response.body() ?: return)
+                else{
+                    callback.onSuccess()
+                }
             }
 
-            override fun onFailure(call: Call<Long>, t: Throwable) {
-                callback.onError(t.toString())
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                callback.onError("removing ${t.toString()}")
             }
         })
     }
 //                                                                             *******SHARE*****
     override fun sharePostAsync(id: Long, callback: PostRepository.Callback<Post>) {
         PostsApi.retrofitService.shareById(id).enqueue(object : retrofit2.Callback<Post>{
+            var counter = 1
             override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                callback.onSuccess(response.body()?: return)
+                if(!response.isSuccessful){
+                    if(counter > 0){
+                        counter--
+                        PostsApi.retrofitService.shareById(id).enqueue(this)
+                    }
+                    else {
+                        callback.onError("sharing ${response.code()} ${response.message()}")
+                        return
+                    }
+                }
+                else{
+                    callback.onSuccess(response.body() ?:
+                    throw RuntimeException("body is null"))
+                }
             }
-
             override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError(t.toString())
+                callback.onError("sharing ${t.toString()}")
             }
         })
     }

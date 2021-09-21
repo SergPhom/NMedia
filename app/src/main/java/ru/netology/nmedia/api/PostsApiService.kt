@@ -9,7 +9,7 @@ import retrofit2.http.*
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.dto.Post
 
-private const val BASE_URL = "${BuildConfig.BASE_URL}/api/failure/"
+private const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/"
 
 private val logging = HttpLoggingInterceptor().apply {
     if (BuildConfig.DEBUG) {
@@ -41,7 +41,7 @@ interface PostsApiService {
     fun save(@Body post: Post): Call<Post>
 
     @DELETE("posts/{id}")
-    fun removeById(@Path("id") id: Long): Call<Long>
+    fun removeById(@Path("id") id: Long): Call<Unit>
 
     @POST("posts/{id}/shares")
     fun shareById(@Path("id") id: Long): Call<Post>

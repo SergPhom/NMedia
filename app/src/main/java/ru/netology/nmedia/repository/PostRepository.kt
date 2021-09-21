@@ -3,18 +3,19 @@ package ru.netology.nmedia.repository
 import ru.netology.nmedia.dto.Post
 
 interface PostRepository {
-    fun fillAsync(callback: Callback<Post>)
 
+    fun fillAsync(callback: Callback<Post>)
+//            **************
     interface GetAllCallback<T> {
         fun onSuccess(posts: T) {}
         fun onError(msg: String) {}
     }
 
     fun getAllAsync(callback: GetAllCallback<List<Post>>)
-
+//             ***************
     interface Callback<T> {
         fun onSuccess(post: T) {}
-        fun onError(s: String) {}
+        fun onError(msg: String) {}
     }
 
     fun likeByIdAsync(id: Long, callback: Callback<Post>)
@@ -24,13 +25,12 @@ interface PostRepository {
     fun savePostAsync(post: Post, callback: Callback<Post>)
 
     fun sharePostAsync(id: Long, callback: Callback<Post>)
-
+//            ***************
     interface CallbackUnit<T>{
-        fun onSuccess(id: Long){}
+        fun onSuccess(){}
         fun onError(msg: String){}
     }
 
-    fun removeByIdAsync(id: Long, callback: CallbackUnit<Long>)
-
+    fun removeByIdAsync(id: Long, callback: CallbackUnit<Unit>)
 
 }
