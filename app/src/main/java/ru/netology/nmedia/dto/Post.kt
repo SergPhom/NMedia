@@ -8,12 +8,14 @@ import ru.netology.nmedia.enumeration.AttachmentType
 data class Post(
     val id: Long,
     val author: String,
+    val authorAvatar: String, //
     val content: String,
-    val published: String,
+    val published: Long,      //
     val likedByMe: Boolean,
     val likes: Long = 0,
     val shares: Long = 0,
     val viewed: Long = 0,
+    val saved: Boolean = false,
     val attachment: Attachment? = null,
 ):Parcelable {
 
@@ -22,10 +24,12 @@ data class Post(
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!,
+        parcel.readLong(),
         parcel.readByte() != 0.toByte(),
         parcel.readLong(),
         parcel.readLong(),
         parcel.readLong(),
+        parcel.readByte() != 0.toByte(),
         parcel.readParcelable<Attachment>(Attachment.javaClass.classLoader)
     )
 
@@ -41,12 +45,14 @@ data class Post(
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
         parcel.writeString(author)
+        parcel.writeString(authorAvatar)
         parcel.writeString(content)
-        parcel.writeString(published)
+        parcel.writeLong(published)
         parcel.writeByte(if (likedByMe) 1 else 0)
         parcel.writeLong(likes)
         parcel.writeLong(shares)
         parcel.writeLong(viewed)
+        parcel.writeByte(if (saved) 1 else 0)
         parcel.writeParcelable(attachment,1)
     }
 
@@ -64,8 +70,6 @@ data class Post(
         }
     }
 }
-
-
 
 data class Attachment(
     val url: String,

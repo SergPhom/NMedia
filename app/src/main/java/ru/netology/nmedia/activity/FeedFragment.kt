@@ -75,19 +75,28 @@ class FeedFragment : Fragment() {
                 findNavController().navigate(R.id.action_feedFragment_to_singlePostFragment,
                     bundleOf("ARG_POST" to post))
             }
+
+            override fun onSavingRetry(post: Post){
+                viewModel.edited.value = post
+                viewModel.save()
+            }
         })
 
         binding.list.adapter = adapter
         binding.refresh.setOnRefreshListener {
-            viewModel.loadPosts()
+            viewModel.refreshPosts()
             binding.refresh.isRefreshing = false
         }
 
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
+            binding.emptyText.isVisible = state.empty
+
+        }
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.errorGroup.isVisible = state.error
-            binding.emptyText.isVisible = state.empty
+            binding.refresh.isRefreshing = state.refreshing
             if(!state.msg.isNullOrBlank()){
                 Snackbar.make(binding.feedMain,
                     "Error ${state.msg}. Please retry later.",

@@ -13,11 +13,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.FeedFragment
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSinglePostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.enumeration.AttachmentType
+import ru.netology.nmedia.view.loadCircleCrop
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class SinglePostFragment: Fragment() {
@@ -60,12 +62,13 @@ class SinglePostFragment: Fragment() {
             val post = it.posts.find{post -> post.id == postId}
             with(binding) {
                 if (post != null) {
-                    Glide.with(binding.avatar)
-                        .load(R.drawable.ic_avatar_foreground)
-                        .circleCrop()
-                        .into(binding.avatar)
+                    avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
+//                    Glide.with(binding.avatar)
+//                        .load(R.drawable.ic_avatar_foreground)
+//                        .circleCrop()
+//                        .into(binding.avatar)
                     author.text = post.author
-                    published.text = post.published
+                    published.text = post.published.toString()
                     content.text = post.content
                     likes.text = "${post.likes}"
                     shares.text = post.count(post.shares)

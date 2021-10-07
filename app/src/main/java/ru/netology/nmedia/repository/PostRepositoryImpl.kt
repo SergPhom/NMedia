@@ -1,179 +1,136 @@
 package ru.netology.nmedia.repository
 
-import retrofit2.Call
-import retrofit2.Response
-import ru.netology.nmedia.api.PostsApi
+import androidx.lifecycle.*
+import retrofit2.*
+import ru.netology.nmedia.api.*
+import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.entity.toDto
+import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.enumeration.AttachmentType
-import java.lang.RuntimeException
+import ru.netology.nmedia.error.*
+import java.io.IOException
 
-class PostRepositoryImpl: PostRepository {
+class PostRepositoryImpl(private val dao: PostDao): PostRepository {
+    override val data = dao.getAll().map(List<PostEntity>::toDto)
 
-    override fun getAllAsync(callback: PostRepository.GetAllCallback<List<Post>>){
-        PostsApi.retrofitService.getAll().enqueue(object : retrofit2.Callback<List<Post>> {
-            var counter = 1
-            override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
-                if (!response.isSuccessful) {
-                    if(counter > 0){
-                            counter--
-                            PostsApi.retrofitService.getAll().enqueue(this)
-                    }
-                    else {
-                        callback.onError("loading ${response.code()} ${response.message()}")
-                        return
-                    }
-                }else{
-                    callback.onSuccess(response.body()
-                        ?: throw RuntimeException("AAAA body is null"))
-                }
+    override suspend fun getAll(){
+        try {
+            val response = PostsApi.retrofitService.getAll()
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
             }
-            override fun onFailure(call: Call<List<Post>>, t: Throwable) {
-                callback.onError("loading ${t.toString()}")
-            }
-        })
+
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(body.toEntity())
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
     }
 
-    override fun savePostAsync(post: Post, callback: PostRepository.Callback<Post>) {
-        PostsApi.retrofitService.save(post).enqueue(object : retrofit2.Callback<Post>{
-            var counter = 1
-            override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                if(!response.isSuccessful){
-                    if(counter > 0){
-                        counter--
-                        PostsApi.retrofitService.save(post).enqueue(this)
-                    }
-                    else {
-                        callback.onError("saving ${response.code()} ${response.message()}")
-                        return
-                    }
-                }
-                else{
-                    callback.onSuccess(response.body() ?: throw RuntimeException("body is null"))
-                }
+    override suspend fun savePost(post: Post) {
+        try {
+            val lessId = data.value?.minOf { it.id }
+            if(post.id == 0L && lessId != null){
+                dao.insert(PostEntity.fromDto(post.copy(id = lessId - 2L)))
+            }else dao.insert(PostEntity.fromDto(post))
+            val _post = if(post.id < 0) post.copy(id = 0L) else post
+            val response = PostsApi.retrofitService.save(_post)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
             }
 
-            override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError("saving ${t.toString()}")
-            }
-
-        })
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            println("${post.id}")                                                              //
+            println("${data.value}")                                                         //
+            dao.onRemoveClick(post.id)
+            dao.insert(PostEntity.fromDto(body))
+            println("${data.value}")                                                         //
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
     }
 //                                                                     ***LIKE/DISLIKE****
-    override fun likeByIdAsync(id: Long, callback: PostRepository.Callback<Post>){
-        PostsApi.retrofitService.likeById(id).enqueue(object : retrofit2.Callback<Post> {
-            var counter = 1
-            override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                if(!response.isSuccessful){
-                    if(counter > 0){
-                        counter--
-                        PostsApi.retrofitService.likeById(id).enqueue(this)
-                    }
-                    else {
-                        callback.onError("liking ${response.code()} ${response.message()}")
-                        return
-                    }
-                }
-                else{
-                    callback.onSuccess(response.body() ?:
-                    throw RuntimeException("body is null"))
-                }
+    override suspend fun likeById(id: Long){
+    try {
+        val response = PostsApi.retrofitService.likeById(id)
+        if (!response.isSuccessful) {
+            throw ApiError(response.code(), response.message())
+        }
+
+        val body = response.body() ?: throw ApiError(response.code(), response.message())
+        dao.insert(PostEntity.fromDto(body))
+    } catch (e: IOException) {
+        throw NetworkError
+    } catch (e: Exception) {
+        throw UnknownError
+    }
+}
+
+    override suspend fun dislikeById(id: Long){
+        try {
+            val response = PostsApi.retrofitService.dislikeById(id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
             }
 
-            override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError("liking ${t.toString()}")
-            }
-
-        })
-      }
-
-    override fun dislikeByIdAsync(id: Long, callback: PostRepository.Callback<Post>){
-        PostsApi.retrofitService.dislikeById(id).enqueue(object : retrofit2.Callback<Post>{
-            var counter = 1
-            override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                if(!response.isSuccessful){
-                    if(counter > 0){
-                        counter--
-                        PostsApi.retrofitService.dislikeById(id).enqueue(this)
-                    }
-                    else {
-                        callback.onError("disliking ${response.code()} ${response.message()}")
-                        return
-                    }
-                }
-                else{
-                    callback.onSuccess(response.body() ?:
-                    throw RuntimeException("body is null"))
-                }
-            }
-
-            override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError("disliking ${t.toString()}")
-            }
-        })
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(PostEntity.fromDto(body))
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
     }
 
 //                                                                                ****REMOVE*****
-    override fun removeByIdAsync(id: Long, callback: PostRepository.CallbackUnit<Unit>) {
-        PostsApi.retrofitService.removeById(id).enqueue(object: retrofit2.Callback<Unit>{
-            var counter = 1
-            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                if(!response.isSuccessful){
-                    if(counter > 0){
-                        counter--
-                        PostsApi.retrofitService.removeById(id).enqueue(this)
-                    }
-                    else {
-                        callback.onError("removing ${response.code()} ${response.message()}")
-                        return
-                    }
-                }
-                else{
-                    callback.onSuccess()
-                }
+    override suspend fun removeById(id: Long) {
+        try {
+            val response = PostsApi.retrofitService.removeById(id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
             }
-
-            override fun onFailure(call: Call<Unit>, t: Throwable) {
-                callback.onError("removing ${t.toString()}")
-            }
-        })
+            dao.onRemoveClick(id)
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
     }
 //                                                                             *******SHARE*****
-    override fun sharePostAsync(id: Long, callback: PostRepository.Callback<Post>) {
-        PostsApi.retrofitService.shareById(id).enqueue(object : retrofit2.Callback<Post>{
-            var counter = 1
-            override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                if(!response.isSuccessful){
-                    if(counter > 0){
-                        counter--
-                        PostsApi.retrofitService.shareById(id).enqueue(this)
-                    }
-                    else {
-                        callback.onError("sharing ${response.code()} ${response.message()}")
-                        return
-                    }
-                }
-                else{
-                    callback.onSuccess(response.body() ?:
-                    throw RuntimeException("body is null"))
-                }
+    override suspend fun sharePost(id: Long) {
+        try {
+            val response = PostsApi.retrofitService.shareById(id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
             }
-            override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError("sharing ${t.toString()}")
-            }
-        })
+
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(PostEntity.fromDto(body))
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
     }
 //                                                                 ***FILL SERVER****
-    override fun fillAsync(callback: PostRepository.Callback<Post>){
-        postsDefault.forEach{
-            savePostAsync(it, callback)
-        }
+    override suspend fun fill(){
+//        postsDefault.forEach{
+//            savePostAsync(it, callback)
+//        }
     }
 }
 val postsDefault = listOf(
     Post(
         id = 1,
         author = "Нетология. Университет интернет-профессий будущего",
+        authorAvatar = "",
         content = "Привет, это новая Нетология! Когда-то Нетология начиналась " +
                 "с интенсивов по онлайн-маркетингу. " +
 //                "Затем появились курсы по дизайну, " +
@@ -183,7 +140,7 @@ val postsDefault = listOf(
 //                "заставляет хотеть больше, целиться выше, бежать быстрее." +
                 " Наша миссия — " +
                 "помочь встать на путь роста и начать цепочку перемен → http://netolo.gy/fyb",
-        published = "21 мая в 18:36",
+        published = 21052020L,
         likedByMe = false,
         likes = 105,
         shares = 26,
@@ -195,10 +152,11 @@ val postsDefault = listOf(
     ), Post(
         id = 2,
         author = "Нетология. Университет интернет-профессий будущего",
+        authorAvatar = "",
         content = "Знаний хватит на всех: на следующей неделе разбираемся с " +
                 "разработкой мобильных приложений, учимся рассказывать истории " +
                 "и составлять PR-стратегию прямо на бесплатных занятиях \uD83D\uDC47",
-        published = "18 сентября в 10:12",
+        published = 18101012L,
         likedByMe = false,
         likes = 155,
         shares = 22456,
@@ -209,6 +167,7 @@ val postsDefault = listOf(
     Post(
         id = 3,
         author = "Нетология. Университет интернет-профессий будущего",
+        authorAvatar = "",
         content = "Привет, это новая Нетология! " +
 //                "Когда-то Нетология начиналась " +
 //                "с интенсивов по онлайн-маркетингу. Затем появились курсы по дизайну, " +
@@ -218,7 +177,7 @@ val postsDefault = listOf(
 //                "заставляет хотеть больше, целиться выше, бежать быстрее. " +
                 "Наша миссия — " +
                 "помочь встать на путь роста и начать цепочку перемен → http://netolo.gy/fyb",
-        published = "21 мая в 18:36",
+        published = 21051836L,
         likedByMe = false,
         likes = 105,
         shares = 22487576,

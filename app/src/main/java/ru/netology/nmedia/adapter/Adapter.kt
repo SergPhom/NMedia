@@ -10,10 +10,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.enumeration.AttachmentType
+import ru.netology.nmedia.view.loadCircleCrop
 
 
 interface Callback {
@@ -23,6 +25,7 @@ interface Callback {
     fun onEdit(post: Post){}
     fun onPlay(post: Post){}
     fun onSingleView(post: Post){}
+    fun onSavingRetry(post: Post){}
 }
 
 class PostsAdapter(
@@ -48,12 +51,13 @@ class PostViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post) {
         binding.apply {
-            Glide.with(binding.avatar)
-                .load(R.drawable.ic_avatar_foreground)
-                .circleCrop()
-                .into(binding.avatar)
-            author.text = post.author
-            published.text = post.published
+            avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
+//            Glide.with(binding.avatar)
+//                .load(R.drawable.ic_avatar_foreground)
+//                .circleCrop()
+//                .into(binding.avatar)
+            author.text = "${post.author}  ${post.id}"
+            published.text = post.published.toString()
             content.text = post.content
             likes.text = "${post.likes}"
             shares.text = post.count(post.shares)
@@ -90,6 +94,14 @@ class PostViewHolder(
                         }
                     }
                 }.show()
+            }
+            if (!post.saved){
+                binding.buttonGroup.visibility = View.GONE
+                binding.retrySaving.visibility = View.VISIBLE
+            }
+
+            retrySaving.setOnClickListener {
+                callback.onSavingRetry(post)
             }
 
             if (post.attachment != null) {
