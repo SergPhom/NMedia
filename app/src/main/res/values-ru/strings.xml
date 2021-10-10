@@ -17,4 +17,5 @@
     <string name="error_loading">Что-то пошло не так. Попробуйте ещё попозже.</string>
     <string name="unsaved">Этот пост еще не сохранен на сервере</string>
     <string name="retry_saving">Этот пост еще не сохранен на сервере. Ещё раз попытаться сохранить.</string>
+    <string name="newer_posts">Новые посты </string>
 </resources>

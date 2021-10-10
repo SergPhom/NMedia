@@ -63,22 +63,19 @@ class SinglePostFragment: Fragment() {
             with(binding) {
                 if (post != null) {
                     avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
-//                    Glide.with(binding.avatar)
-//                        .load(R.drawable.ic_avatar_foreground)
-//                        .circleCrop()
-//                        .into(binding.avatar)
                     author.text = post.author
                     published.text = post.published.toString()
                     content.text = post.content
-                    likes.text = "${post.likes}"
                     shares.text = post.count(post.shares)
-                    viewed.text = "${post.viewed}"
+                    viewes.text = "${post.viewes}"
 
+                    likes.text = "${post.likes}"
                     likes.setIconResource(
                         if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24
                     )
                     likes.isChecked = post.likedByMe
                     likes.setIconTintResource(R.color.like_button_tint)
+                    //*********************************************************LISTENERS
                     likes.setOnClickListener {
                         try {
                             viewModel.onLiked(post)
@@ -124,6 +121,7 @@ class SinglePostFragment: Fragment() {
                             }
                         }.show()
                     }
+                    //*******************************************************OPTIONS
                     if (post.attachment != null) {
                         when (post.attachment.type){
                             AttachmentType.VIDEO -> {

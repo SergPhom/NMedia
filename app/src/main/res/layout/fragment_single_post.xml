@@ -112,7 +112,7 @@
                                     android:layout_weight="1"/>
 
                                 <com.google.android.material.button.MaterialButton
-                                    android:id="@+id/viewed"
+                                    android:id="@+id/viewes"
                                     style="@style/Widget.App.Button.OutlinedButton.LikeShare"
                                     android:text="@sample/posts.json/data/viewed"
                                     app:iconTint="?attr/colorControlNormal"

@@ -52,22 +52,20 @@ class PostViewHolder(
     fun bind(post: Post) {
         binding.apply {
             avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
-//            Glide.with(binding.avatar)
-//                .load(R.drawable.ic_avatar_foreground)
-//                .circleCrop()
-//                .into(binding.avatar)
             author.text = "${post.author}  ${post.id}"
             published.text = post.published.toString()
             content.text = post.content
-            likes.text = "${post.likes}"
             shares.text = post.count(post.shares)
-            viewed.text = "${post.viewed}"
+            viewes.text = "${post.viewes}"
 
+            likes.text = "${post.likes}"
             likes.setIconResource(
                 if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24
             )
             likes.isChecked = post.likedByMe
             likes.setIconTintResource(R.color.like_button_tint)
+
+            //******************************************************************Listeners
             likes.setOnClickListener {
                 callback.onLiked(post)
             }
@@ -95,13 +93,26 @@ class PostViewHolder(
                     }
                 }.show()
             }
-            if (!post.saved){
-                binding.buttonGroup.visibility = View.GONE
-                binding.retrySaving.visibility = View.VISIBLE
-            }
 
             retrySaving.setOnClickListener {
                 callback.onSavingRetry(post)
+            }
+
+            video.setOnClickListener {
+                callback.onPlay(post)
+            }
+
+            videoPlay.setOnClickListener {
+                callback.onPlay(post)
+            }
+            author.setOnClickListener{ callback.onSingleView(post)}
+            avatar.setOnClickListener{ callback.onSingleView(post)}
+            content.setOnClickListener{ callback.onSingleView(post)}
+            published.setOnClickListener{ callback.onSingleView(post)}
+              //******************************************************************Options
+            if (!post.saved){
+                binding.buttonGroup.visibility = View.GONE
+                binding.retrySaving.visibility = View.VISIBLE
             }
 
             if (post.attachment != null) {
@@ -115,17 +126,6 @@ class PostViewHolder(
 
                 }
             }
-            video.setOnClickListener {
-                callback.onPlay(post)
-            }
-            videoPlay.setOnClickListener {
-                callback.onPlay(post)
-            }
-
-            author.setOnClickListener{ callback.onSingleView(post)}
-            avatar.setOnClickListener{ callback.onSingleView(post)}
-            content.setOnClickListener{ callback.onSingleView(post)}
-            published.setOnClickListener{ callback.onSingleView(post)}
 
         }
     }

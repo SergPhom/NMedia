@@ -1,14 +1,10 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
-import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.*
-import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE
-import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG
-import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
@@ -27,7 +23,8 @@ private val empty = Post(
     published = 12345L,
     shares = 0L,
     likes = 0L,
-    viewed = 0L,
+    viewes = 0L,
+    viewed = true,
     saved = false,
     attachment = null
 )
@@ -37,7 +34,16 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
 
-    val data: LiveData<FeedModel> = repository.data.map(::FeedModel)
+    val data: LiveData<FeedModel> = repository.data
+        .map(::FeedModel)
+        .asLiveData(Dispatchers.Default)
+        .also { it.value?.posts?.filter { post ->  post.viewed } }
+
+    val newerCount: LiveData<Int> = data.switchMap {
+        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
+            .asLiveData(Dispatchers.Default)
+    }
+
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState
@@ -58,6 +64,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
             _dataState.value = FeedModelState()
         } catch (e: Exception) {
             _dataState.value = FeedModelState( msg = "Loading error $e")
+        }
+    }
+
+    fun markNewerPostsViewed()= viewModelScope.launch {
+        try {
+            repository.newerPostsViewed()
+        } catch (e: Exception) {
+            println("PW $e")
+            return@launch
         }
     }
 
@@ -146,19 +161,4 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
     fun cancel(){
         edited.value = empty
     }
-
-//    fun fillPosts() {
-//        _data.postValue(FeedModel(loading = true))
-//        repository.fillAsync(object : PostRepository.Callback<Post> {
-//            override fun onSuccess(post: Post) {
-//                _data.postValue(_data.value?.posts
-//                    ?.let { FeedModel(posts = it.plus(post)) })
-//            }
-//
-//            override fun onError(msg: String) {
-//                Toast.makeText(getApplication(), msg as CharSequence, Toast.LENGTH_LONG)
-//                _data.postValue(FeedModel(error = true))
-//            }
-//        })
-//    }
 }

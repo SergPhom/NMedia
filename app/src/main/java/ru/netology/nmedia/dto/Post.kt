@@ -14,7 +14,8 @@ data class Post(
     val likedByMe: Boolean,
     val likes: Long = 0,
     val shares: Long = 0,
-    val viewed: Long = 0,
+    val viewes: Long = 0,
+    val viewed: Boolean,
     val saved: Boolean = false,
     val attachment: Attachment? = null,
 ):Parcelable {
@@ -29,6 +30,7 @@ data class Post(
         parcel.readLong(),
         parcel.readLong(),
         parcel.readLong(),
+        parcel.readByte() != 0.toByte(),
         parcel.readByte() != 0.toByte(),
         parcel.readParcelable<Attachment>(Attachment.javaClass.classLoader)
     )
@@ -51,7 +53,8 @@ data class Post(
         parcel.writeByte(if (likedByMe) 1 else 0)
         parcel.writeLong(likes)
         parcel.writeLong(shares)
-        parcel.writeLong(viewed)
+        parcel.writeLong(viewes)
+        parcel.writeByte(if (viewed) 1 else 0)
         parcel.writeByte(if (saved) 1 else 0)
         parcel.writeParcelable(attachment,1)
     }

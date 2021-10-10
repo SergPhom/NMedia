@@ -1,5 +1,6 @@
 package ru.netology.nmedia
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -28,6 +29,7 @@ class FeedFragment : Fragment() {
         ownerProducer = ::requireParentFragment
     )
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -81,15 +83,21 @@ class FeedFragment : Fragment() {
                 viewModel.save()
             }
         })
-
         binding.list.adapter = adapter
-        binding.refresh.setOnRefreshListener {
-            viewModel.refreshPosts()
-            binding.refresh.isRefreshing = false
+
+        //****************************************************************Observers
+        viewModel.newerCount.observe(viewLifecycleOwner){
+            binding.newerPosts.isVisible = it > 0
+            binding.newerPosts.text =  "${getString(R.string.newer_posts)} - "+
+                    " ${viewModel.newerCount.value}"
         }
 
         viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
+            val viewedPosts = state.posts.filter{it.viewed}
+            val notTopPosition = adapter.itemCount > 0 && adapter.itemCount < state.posts.size
+            adapter.submitList(viewedPosts){
+                if(notTopPosition && !binding.newerPosts.isVisible) binding.list.smoothScrollToPosition(0)
+            }
             binding.emptyText.isVisible = state.empty
 
         }
@@ -103,6 +111,16 @@ class FeedFragment : Fragment() {
                     Snackbar.LENGTH_LONG)
                     .show()
             }
+        }
+        //**************************************************************Listeners
+        binding.refresh.setOnRefreshListener {
+            viewModel.refreshPosts()
+            binding.refresh.isRefreshing = false
+        }
+
+        binding.newerPosts.setOnClickListener {
+            binding.newerPosts.isVisible = false
+            viewModel.markNewerPostsViewed()
         }
 
         binding.retryButton.setOnClickListener {

@@ -1,18 +1,17 @@
 package ru.netology.nmedia.dao
 
-import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import ru.netology.nmedia.dto.Post
+import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.entity.PostEntity
-import java.io.Closeable
+
 @Dao
 interface PostDao {
 
     @Query("SELECT * FROM PostEntity ORDER BY id DESC")
-    fun getAll(): LiveData<List<PostEntity>>
+    fun getAll(): Flow<List<PostEntity>>
+
+    @Query("SELECT * FROM PostEntity WHERE id = :id")
+    fun getById(id: Long): Flow<PostEntity>
 
     @Query("""
         UPDATE PostEntity SET
@@ -21,7 +20,13 @@ interface PostDao {
         WHERE id = :id
         """)
     suspend fun onLikeButtonClick(id: Long)
+//////////////////////////////////////////////////////////////////////////////////////////
+    @Query("SELECT COUNT(viewed) as count FROM PostEntity WHERE viewed = 0")
+    suspend fun  notViewedCount(): Int
 
+    @Query("UPDATE PostEntity SET viewed = 1")
+    suspend fun allViewedTrue()
+////////////////////////////////////////////////////////////////////////////////////////////////
     @Query(
         """
            UPDATE PostEntity

@@ -17,19 +17,39 @@ data class PostEntity(
     val likedByMe: Boolean,
     val likes: Long = 0,
     val shares: Long = 0,
-    val viewed: Long = 0,
+    val viewes: Long = 0,
     val saved: Boolean,
+    val viewed: Boolean,
     @Embedded
     val attachment: Attachment? = null
 ) {
-    fun toDto() = Post(id, author, authorAvatar, content,
-        published, likedByMe, likes, shares, viewed, saved, attachment)
+    fun toDto() = Post(id = id,
+        author = author,
+        authorAvatar = authorAvatar,
+        content = content,
+        published = published,
+        likedByMe = likedByMe,
+        likes = likes,
+        shares = shares,
+        viewes = viewes,
+        saved= saved,
+        viewed = viewed,
+        attachment = attachment)
 
     companion object {
         fun fromDto(dto: Post) =
-            PostEntity(dto.id, dto.author, dto.authorAvatar,
-                dto.content, dto.published, dto.likedByMe, dto.likes,
-            dto.shares, dto.viewed, dto.saved, dto.attachment)
+            PostEntity(id =dto.id,
+                author = dto.author,
+                authorAvatar = dto.authorAvatar,
+                content = dto.content,
+                published = dto.published,
+                likedByMe = dto.likedByMe,
+                likes = dto.likes,
+                shares = dto.shares,
+                viewes = dto.viewes,
+                viewed = dto.viewed,
+                saved = dto.saved,
+                attachment = dto.attachment)
 
     }
 }
