@@ -18,4 +18,5 @@
     <string name="unsaved">This post haven\'t been saved on server yet</string>
     <string name="retry_saving">This post haven\'t been saved on server yet. Retry save on server</string>
     <string name="newer_posts">Newer posts</string>
+    <string name="remove">Remove</string>
 </resources>

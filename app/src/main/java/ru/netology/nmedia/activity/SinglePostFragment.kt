@@ -7,18 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.widget.ActionBarContainer
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
 import ru.netology.nmedia.BuildConfig
-import ru.netology.nmedia.FeedFragment
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSinglePostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.enumeration.AttachmentType
+import ru.netology.nmedia.view.load
 import ru.netology.nmedia.view.loadCircleCrop
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -35,11 +35,17 @@ class SinglePostFragment: Fragment() {
         ownerProducer = ::requireParentFragment
     )
 
+//    override fun onStart() {
+//        super.onStart()
+//        (activity as AppCompatActivity).supportActionBar!!.hide()
+//    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        ActionBarContainer.GONE
         val binding = FragmentSinglePostBinding.inflate(
             inflater,
             container,
@@ -58,23 +64,23 @@ class SinglePostFragment: Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(callback)
 
         viewModel.data.observe(viewLifecycleOwner) {
-            val postId =  arguments?.getParcelable<Post>("ARG_POST")?.id
-            val post = it.posts.find{post -> post.id == postId}
+            val post =  arguments?.getParcelable<Post>("ARG_POST")
             with(binding) {
                 if (post != null) {
-                    avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
-                    author.text = post.author
-                    published.text = post.published.toString()
-                    content.text = post.content
-                    shares.text = post.count(post.shares)
-                    viewes.text = "${post.viewes}"
+                    if(post.id != 0L){
+                        postContainer.visibility = View.VISIBLE
+                        avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
+                        author.text = post.author
+                        published.text = post.published.toString()
+                        content.text = post.content
+                        shares.text = post.count(post.shares)
+                        viewes.text = "${post.viewes}"
 
-                    likes.text = "${post.likes}"
-                    likes.setIconResource(
-                        if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24
-                    )
-                    likes.isChecked = post.likedByMe
-                    likes.setIconTintResource(R.color.like_button_tint)
+                        likes.text = "${post.likes}"
+                        likes.setIconResource(
+                        if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24)
+                        likes.isChecked = post.likedByMe
+                        likes.setIconTintResource(R.color.like_button_tint)
                     //*********************************************************LISTENERS
                     likes.setOnClickListener {
                         try {
@@ -121,26 +127,30 @@ class SinglePostFragment: Fragment() {
                             }
                         }.show()
                     }
+                    }
                     //*******************************************************OPTIONS
                     if (post.attachment != null) {
                         when (post.attachment.type){
                             AttachmentType.VIDEO -> {
-                                videoGroup.visibility = View.VISIBLE
+                                video.visibility = View.VISIBLE
+                                videoPlay.visibility = View.VISIBLE
                                 video.setOnClickListener {
                                     val intent = Intent(Intent.ACTION_VIEW,
-                                        Uri.parse(post.attachment.url))
+                                        Uri.parse("${BuildConfig.BASE_URL}/media/${post.attachment.url}"))
                                     startActivity(intent)
                                 }
                                 videoPlay.setOnClickListener {
                                     val intent = Intent(Intent.ACTION_VIEW,
-                                        Uri.parse(post.attachment.url))
+                                        Uri.parse("${BuildConfig.BASE_URL}/media/${post.attachment.url}"))
                                     startActivity(intent)
                                 }
                             }
                             AttachmentType.IMAGE ->{
-                                Glide.with(imageAttachment)
-                                    .load(Uri.parse("${post.attachment.url}"))
-                                    .into(imageAttachment)
+                                if(post.id == 0L){
+                                    attachmentContainer.setBackgroundColor(resources.getColor(R.color.black))
+                                }
+                                imageAttachment.visibility = View.VISIBLE
+                                imageAttachment.load("${BuildConfig.BASE_URL}/media/${post.attachment.url}")
                             }
                         }
                     }

@@ -78,6 +78,11 @@ class FeedFragment : Fragment() {
                     bundleOf("ARG_POST" to post))
             }
 
+            override fun onSingleViewImageOnly(post: Post){
+                findNavController().navigate(R.id.action_feedFragment_to_singlePostFragment,
+                    bundleOf("ARG_POST" to post.copy(id=0))  )
+            }
+
             override fun onSavingRetry(post: Post){
                 viewModel.edited.value = post
                 viewModel.save()
@@ -106,9 +111,9 @@ class FeedFragment : Fragment() {
             binding.errorGroup.isVisible = state.error
             binding.refresh.isRefreshing = state.refreshing
             if(!state.msg.isNullOrBlank()){
-                Snackbar.make(binding.feedMain,
+                Snackbar.make(binding.root,
                     "Error ${state.msg}. Please retry later.",
-                    Snackbar.LENGTH_LONG)
+                    Snackbar.LENGTH_INDEFINITE)
                     .show()
             }
         }

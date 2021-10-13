@@ -1,17 +1,21 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
+import java.io.File
 import java.lang.Exception
 
 private val empty = Post(
@@ -28,6 +32,7 @@ private val empty = Post(
     saved = false,
     attachment = null
 )
+private val noPhoto = PhotoModel()
 
 class PostViewModel(application: Application) : AndroidViewModel(application){
 
@@ -39,19 +44,26 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
         .asLiveData(Dispatchers.Default)
         .also { it.value?.posts?.filter { post ->  post.viewed } }
 
-    val newerCount: LiveData<Int> = data.switchMap {
-        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
-            .asLiveData(Dispatchers.Default)
-    }
-
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState
-    val edited = MutableLiveData(empty)
+
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
+
+    val edited = MutableLiveData(empty)
     var draft = ""
+
+    val newerCount: LiveData<Int> = data.switchMap {
+        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
+            .catch { e -> e.printStackTrace() }
+            .asLiveData(Dispatchers.Default)
+    }
+
+    private val _photo = MutableLiveData(noPhoto)
+    val photo: LiveData<PhotoModel>
+        get() = _photo
 
     init {
         loadPosts()
@@ -63,7 +75,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
             repository.getAll()
             _dataState.value = FeedModelState()
         } catch (e: Exception) {
-            _dataState.value = FeedModelState( msg = "Loading error $e")
+            _dataState.value = FeedModelState( msg = "Loading error")
         }
     }
 
@@ -82,7 +94,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
             repository.getAll()
             _dataState.value = FeedModelState()
         } catch (e: Exception) {
-            _dataState.value = FeedModelState( msg = "Refreshing error $e")
+            _dataState.value = FeedModelState( msg = "Refreshing error")
         }
     }
 
@@ -91,14 +103,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
             _postCreated.postValue(Unit)
             viewModelScope.launch {
                 try {
-                    repository.savePost(it)
+                    when(_photo.value) {
+                        noPhoto -> repository.savePost(it)
+                        else -> _photo.value?.file?.let { file ->
+                            repository.savePostWithAttachment(it, MediaUpload(file))
+                        }
+                    }
                     _dataState.value = FeedModelState()
                 } catch (e: Exception) {
-                    _dataState.value = FeedModelState( msg = "Saving error $e")
+                    _dataState.value = FeedModelState( msg = "Saving error")
                 }
             }
         }
         edited.value = empty
+        _photo.value = noPhoto
     }
 
     fun onEdit(post: Post){
@@ -120,7 +138,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
                    repository.dislikeById(post.id)
                    _dataState.value = FeedModelState()
                } catch (e: Exception) {
-                   _dataState.value = FeedModelState( msg = "disliking error $e")
+                   _dataState.value = FeedModelState( msg = "disliking error ")
                }
            }
         } else{
@@ -129,7 +147,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
                     repository.likeById(post.id)
                     _dataState.value = FeedModelState()
                 } catch (e: Exception) {
-                    _dataState.value = FeedModelState( msg = "Liking error $e")
+                    _dataState.value = FeedModelState( msg = "Liking error ")
                 }
             }
         }
@@ -141,7 +159,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
             repository.removeById(post.id)
             _dataState.value = FeedModelState()
         } catch (e: Exception) {
-            _dataState.value = FeedModelState( msg = "Remove error $e")
+            _dataState.value = FeedModelState( msg = "Remove error ")
         }
     }
 
@@ -153,9 +171,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
                 repository.sharePost(post.id)
                 _dataState.value = FeedModelState()
             } catch (e: Exception) {
-                _dataState.value = FeedModelState( msg = "Share error $e")
+                _dataState.value = FeedModelState( msg = "Share error ")
             }
         }
+    }
+
+    fun changePhoto(uri: Uri?, file: File?) {
+        _photo.value = PhotoModel(uri, file)
     }
 
     fun cancel(){

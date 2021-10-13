@@ -13,20 +13,22 @@ interface PostDao {
     @Query("SELECT * FROM PostEntity WHERE id = :id")
     fun getById(id: Long): Flow<PostEntity>
 
-    @Query("""
-        UPDATE PostEntity SET
-        likes = likes + CASE WHEN likedByMe THEN -1 ELSE 1 END,
-        likedByMe = CASE WHEN likedByMe THEN 0 ELSE 1 END
-        WHERE id = :id
-        """)
-    suspend fun onLikeButtonClick(id: Long)
+
 //////////////////////////////////////////////////////////////////////////////////////////
     @Query("SELECT COUNT(viewed) as count FROM PostEntity WHERE viewed = 0")
     suspend fun  notViewedCount(): Int
 
     @Query("UPDATE PostEntity SET viewed = 1")
     suspend fun allViewedTrue()
-////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////        CRUD
+@Query("""
+        UPDATE PostEntity SET
+        likes = likes + CASE WHEN likedByMe THEN -1 ELSE 1 END,
+        likedByMe = CASE WHEN likedByMe THEN 0 ELSE 1 END
+        WHERE id = :id
+        """)
+suspend fun onLikeButtonClick(id: Long)
+
     @Query(
         """
            UPDATE PostEntity
@@ -41,6 +43,7 @@ interface PostDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: PostEntity)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(posts: List<PostEntity>)
 

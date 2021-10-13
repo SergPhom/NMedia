@@ -2,6 +2,8 @@ package ru.netology.nmedia.repository
 
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
+import ru.netology.nmedia.dto.Media
+import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 
 interface PostRepository {
@@ -18,6 +20,7 @@ interface PostRepository {
     suspend fun dislikeById(id: Long)
 
     suspend fun savePost(post: Post)
+    suspend fun savePostWithAttachment(post: Post, upload: MediaUpload)
 
     suspend fun sharePost(id: Long)
 
@@ -25,5 +28,7 @@ interface PostRepository {
 //            ***************               REMOVE
 
     suspend fun removeById(id: Long)
+
+    suspend fun upload(upload: MediaUpload): Media
 
 }

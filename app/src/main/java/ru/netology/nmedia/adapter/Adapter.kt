@@ -15,6 +15,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.enumeration.AttachmentType
+import ru.netology.nmedia.view.load
 import ru.netology.nmedia.view.loadCircleCrop
 
 
@@ -25,6 +26,7 @@ interface Callback {
     fun onEdit(post: Post){}
     fun onPlay(post: Post){}
     fun onSingleView(post: Post){}
+    fun onSingleViewImageOnly(post: Post){}
     fun onSavingRetry(post: Post){}
 }
 
@@ -109,6 +111,7 @@ class PostViewHolder(
             avatar.setOnClickListener{ callback.onSingleView(post)}
             content.setOnClickListener{ callback.onSingleView(post)}
             published.setOnClickListener{ callback.onSingleView(post)}
+            imageAttachment.setOnClickListener { callback.onSingleViewImageOnly(post) }
               //******************************************************************Options
             if (!post.saved){
                 binding.buttonGroup.visibility = View.GONE
@@ -119,14 +122,11 @@ class PostViewHolder(
                 when (post.attachment.type){
                     AttachmentType.VIDEO -> videoGroup.visibility = View.VISIBLE
                     AttachmentType.IMAGE ->{
-                        Glide.with(imageAttachment)
-                            .load(Uri.parse("${post.attachment.url}"))
-                            .into(imageAttachment)
+                        imageAttachment.visibility = View.VISIBLE
+                        imageAttachment.load("${BuildConfig.BASE_URL}/media/${post.attachment.url}")
                     }
-
                 }
             }
-
         }
     }
 }
