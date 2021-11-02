@@ -5,11 +5,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.enumeration.AttachmentType
 
 @Entity
 data class PostEntity(
     @PrimaryKey(autoGenerate = false)
     val id: Long,
+    val authorId: Long,
     val author: String,
     var authorAvatar: String,
     val content: String,
@@ -24,6 +26,7 @@ data class PostEntity(
     val attachment: Attachment? = null
 ) {
     fun toDto() = Post(id = id,
+        authorId = authorId,
         author = author,
         authorAvatar = authorAvatar,
         content = content,
@@ -39,6 +42,7 @@ data class PostEntity(
     companion object {
         fun fromDto(dto: Post) =
             PostEntity(id =dto.id,
+                authorId = dto.authorId,
                 author = dto.author,
                 authorAvatar = dto.authorAvatar,
                 content = dto.content,
@@ -51,6 +55,20 @@ data class PostEntity(
                 saved = dto.saved,
                 attachment = dto.attachment)
 
+    }
+}
+
+data class AttachmentEmbeddable(
+    var url: String,
+    val description: String,
+    var type: AttachmentType,
+) {
+    fun toDto() = Attachment(url, description, type)
+
+    companion object {
+        fun fromDto(dto: Attachment?) = dto?.let {
+            AttachmentEmbeddable(it.url, it.description, it.type)
+        }
     }
 }
 

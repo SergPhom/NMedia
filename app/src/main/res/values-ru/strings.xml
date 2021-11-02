@@ -19,4 +19,15 @@
     <string name="retry_saving">Этот пост еще не сохранен на сервере. Ещё раз попытаться сохранить.</string>
     <string name="newer_posts">Новые посты </string>
     <string name="remove">Удалить</string>
+    <string name="sign_in">Вход</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="sign_out">Выход</string>
+    <string name="password">Пароль</string>
+    <string name="enter_password">Войти</string>
+    <string name="login">Логин</string>
+    <string name="authentication">Пожалуйста пройдите аутентификацию для продолжения</string>
+    <string name="cancel">Отмена</string>
+    <string name="are_you_shure">Вы уверены, что хотите выйти?</string>
+    <string name="name">Введите Имя</string>
+    <string name="password_confirm">Подтвердите свой пароль</string>
 </resources>

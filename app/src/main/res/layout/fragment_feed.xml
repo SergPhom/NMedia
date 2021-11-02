@@ -25,7 +25,7 @@
             app:iconGravity="start"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />  //newer
         <TextView
             android:id="@+id/retryTitle"
             android:layout_width="wrap_content"
@@ -36,7 +36,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed" />
+            app:layout_constraintVertical_chainStyle="packed"
+            />     //retry
 
         <Button
             android:id="@+id/retryButton"
@@ -49,13 +50,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/retryTitle"
-            tools:text="@string/retry_loading" />
+            tools:text="@string/retry_loading"
+            />         //retry
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/errorGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="retryTitle,retryButton" />
+            app:constraint_referenced_ids="retryTitle,retryButton"
+            android:visibility="gone"/>   //retry group
 
         <TextView
             android:id="@+id/emptyText"
@@ -66,7 +69,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />          //empty posts
 
         <ProgressBar
             android:id="@+id/progress"
@@ -92,6 +95,39 @@
                 tools:listitem="@layout/card_post" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+        <LinearLayout
+            android:id="@+id/sign_in_dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:orientation="vertical"
+            android:background="@color/purple_200"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:maxWidth="@dimen/textWidth"
+                android:textAlignment="center"
+                android:text="@string/authentication"/>
+            <Button
+                android:id="@+id/sign_in_dialog_ok"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/teal_200"
+                android:background="@color/transparent"
+                android:text="@string/sign_in"/>
+            <Button
+                android:id="@+id/sign_in_dialog_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/cancel_red"
+                android:background="@color/transparent"
+                android:text="@string/cancel"/>
+        </LinearLayout>    // dialog
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"

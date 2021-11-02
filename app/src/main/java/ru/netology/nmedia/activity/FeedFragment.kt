@@ -7,19 +7,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import ru.netology.nmedia.activity.SinglePostFragment
 import ru.netology.nmedia.adapter.Callback
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 
@@ -28,6 +27,15 @@ class FeedFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment
     )
+
+//    override fun onStart() {
+//        super.onStart()
+//        if (activity is AppActivity) {
+//            val statusBarColor = ContextCompat.getColor(requireActivity(),R.color.black)
+//            activity.window.statusBarColor = statusBarColor
+//            activity.supportActionBar?.setBackgroundDrawable(ColorDrawable(statusBarColor))
+//        }
+//    }
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -43,7 +51,8 @@ class FeedFragment : Fragment() {
 
         val adapter = PostsAdapter(object : Callback {
             override fun onLiked(post: Post) {
-                viewModel.onLiked(post)
+               if(viewModel.authenticated.value == true) viewModel.onLiked(post)
+               else binding.signInDialog.visibility = View.VISIBLE
             }
 
             override fun onShared(post: Post) {
@@ -117,6 +126,10 @@ class FeedFragment : Fragment() {
                     .show()
             }
         }
+        viewModel.authenticated.observe(viewLifecycleOwner){
+            println(" $it ")
+        }
+
         //**************************************************************Listeners
         binding.refresh.setOnRefreshListener {
             viewModel.refreshPosts()
@@ -133,7 +146,20 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            if(viewModel.authenticated.value == true){
+                viewModel.forAuthenticated()
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            } else{
+                binding.signInDialog.visibility = View.VISIBLE
+            }
+        }
+        binding.signInDialogOk.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_feedFragment_to_authFragment,
+            )
+        }
+        binding.signInDialogCancel.setOnClickListener{
+            binding.signInDialog.visibility = View.GONE
         }
         return binding.root
     }

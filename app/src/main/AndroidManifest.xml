@@ -2,15 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ru.netology.nmedia">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Nmedia"
+        android:name=".application.NMediaApplication"
         android:usesCleartextTraffic="${usesCleartextTraffic}">
-        <activity android:name=".activity.AppActivity">
+        <activity android:name=".activity.AppActivity"
+            android:windowSoftInputMode="adjustResize">
             <nav-graph android:value="@navigation/nav_main" />
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -33,5 +38,12 @@
             </intent-filter>
         </service>
     </application>
+
+    <queries>
+        <!-- Camera: https://github.com/Dhaval2404/ImagePicker/issues/143 -->
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
 
 </manifest>

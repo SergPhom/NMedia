@@ -1,56 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.NewPostFragment">
-
+    tools:context=".activity.NewPostFragment"
+    >
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-
         <LinearLayout
-    android:id="@+id/edit_group"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:visibility="visible"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintStart_toStartOf="parent">
-    <ImageButton
-        android:id="@+id/cancel_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/little_offset"
-        android:background="@android:color/transparent"
-        android:foregroundTint="@color/cancel_red"
-        app:srcCompat="@drawable/ic_cancel_24"
-        tools:ignore="VectorDrawableCompat" />
+            android:id="@+id/edit_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
-    <ImageView
-        android:id="@+id/edit_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight="2"
-        android:layout_marginTop="@dimen/little_offset"
-        app:srcCompat="@drawable/ic_edit_icon_24"
-        tools:ignore="VectorDrawableCompat" />
+            <ImageButton
+                android:id="@+id/cancel_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/little_offset"
+                android:background="@android:color/transparent"
+                android:foregroundTint="@color/cancel_red"
+                app:srcCompat="@drawable/ic_cancel_24"
+                tools:ignore="VectorDrawableCompat" />
 
-    <ImageButton
-        android:id="@+id/ok_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/little_offset"
-        android:layout_gravity="end"
-        android:background="@android:color/transparent"
-        app:srcCompat="@drawable/ic_ok_24dp"
-        tools:ignore="VectorDrawableCompat" />
-</LinearLayout>              //edit group
+            <ImageView
+                android:id="@+id/edit_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="2"
+                android:layout_marginTop="@dimen/little_offset"
+                app:srcCompat="@drawable/ic_edit_icon_24"
+                tools:ignore="VectorDrawableCompat" />
 
 
+            <ImageButton
+                android:id="@+id/ok_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/little_offset"
+                android:layout_gravity="end"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/ic_ok_24dp"
+                tools:ignore="VectorDrawableCompat" />
+        </LinearLayout>              //edit group
 
         <EditText
             android:id="@+id/content"
@@ -64,7 +63,7 @@
             tools:text="@string/retry_saving"
             app:layout_constraintTop_toBottomOf="@id/edit_group"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" />                   //content
         <FrameLayout
             android:id="@+id/photoContainer"
             android:layout_width="match_parent"
@@ -85,7 +84,7 @@
                 android:textColor="@color/black"
                 android:layout_gravity="center_horizontal|bottom"
                 android:text="@string/remove" />
-        </FrameLayout>
+        </FrameLayout>             //photo
 
         <View
             android:id="@+id/divider"
@@ -97,6 +96,40 @@
             app:layout_constraintBottom_toTopOf="@id/buttonPanel"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />                    //divider
+
+        <LinearLayout
+            android:id="@+id/sign_out_dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:orientation="vertical"
+            android:background="@color/purple_200"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:maxWidth="@dimen/textWidth"
+                android:textAlignment="center"
+                android:text="@string/are_you_shure"/>
+            <Button
+                android:id="@+id/sign_out_dialog_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/teal_200"
+                android:background="@color/transparent"
+                android:text="@string/cancel"/>
+            <Button
+                android:id="@+id/sign_out_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/cancel_red"
+                android:background="@color/transparent"
+                android:text="@string/sign_out"/>
+        </LinearLayout>    // dialog
 
         <LinearLayout
             android:id="@+id/buttonPanel"

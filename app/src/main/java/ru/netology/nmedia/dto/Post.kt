@@ -7,10 +7,11 @@ import ru.netology.nmedia.enumeration.AttachmentType
 
 data class Post(
     val id: Long,
+    val authorId: Long,
     val author: String,
-    val authorAvatar: String, //
+    val authorAvatar: String,
     val content: String,
-    val published: Long,      //
+    val published: Long,
     val likedByMe: Boolean,
     val likes: Long = 0,
     val shares: Long = 0,
@@ -18,10 +19,12 @@ data class Post(
     val viewed: Boolean,
     val saved: Boolean = false,
     val attachment: Attachment? = null,
+    val ownedByMe: Boolean = false,
 ):Parcelable {
 
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
+        parcel.readLong(),
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!,
@@ -32,7 +35,8 @@ data class Post(
         parcel.readLong(),
         parcel.readByte() != 0.toByte(),
         parcel.readByte() != 0.toByte(),
-        parcel.readParcelable<Attachment>(Attachment.javaClass.classLoader)
+        parcel.readParcelable<Attachment>(Attachment.javaClass.classLoader),
+        parcel.readByte() != 0.toByte(),
     )
 
     fun count(value: Long): String = when(value){
@@ -46,6 +50,7 @@ data class Post(
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
+        parcel.writeLong(id)
         parcel.writeString(author)
         parcel.writeString(authorAvatar)
         parcel.writeString(content)
@@ -57,6 +62,7 @@ data class Post(
         parcel.writeByte(if (viewed) 1 else 0)
         parcel.writeByte(if (saved) 1 else 0)
         parcel.writeParcelable(attachment,1)
+        parcel.writeByte(if (ownedByMe) 1 else 0)
     }
 
     override fun describeContents(): Int {

@@ -4,13 +4,17 @@ import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
@@ -18,6 +22,9 @@ import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.viewmodel.PostViewModel
 import com.github.dhaval2404.imagepicker.*
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
+import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.viewmodel.SharedViewModel
 
 class NewPostFragment : Fragment() {
 
@@ -26,11 +33,13 @@ class NewPostFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment
     )
+    private val model: SharedViewModel by activityViewModels<SharedViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ):View {
+
         val binding = FragmentNewPostBinding.inflate(
             inflater,
             container,
@@ -54,8 +63,6 @@ class NewPostFragment : Fragment() {
 
         binding.content.setText(arguments?.getString("textArg"))
 
-        //if (!binding.content.text.isEmpty()) binding.editGroup.visibility = View.VISIBLE
-
         if(binding.content.text.isNullOrBlank()){
             binding.content.setText(viewModel.draft)
             viewModel.draft = ""
@@ -76,7 +83,6 @@ class NewPostFragment : Fragment() {
                 AndroidUtils.hideKeyboard(this)
                 findNavController().navigateUp()
             }
-
         }
 
         val pickPhotoLauncher =
@@ -132,6 +138,24 @@ class NewPostFragment : Fragment() {
             binding.photo.setImageURI(it.uri)
         }
 
+        model.selected.observe(viewLifecycleOwner){
+            if(it) binding.signOutDialog.visibility = View.VISIBLE
+        }
+
+        binding.signOutDialogCancel.setOnClickListener {
+            binding.signOutDialog.visibility = View.GONE
+        }
+
+        binding.signOutButton.setOnClickListener {
+            AppAuth.getInstance().removeAuth()
+            with(binding.content){
+                viewModel.cancel()
+                setText("")
+                clearFocus()
+                AndroidUtils.hideKeyboard(this)
+                findNavController().navigateUp()
+            }
+        }
         return binding.root
     }
 
@@ -140,3 +164,4 @@ class NewPostFragment : Fragment() {
         super.onDestroyView()
     }
 }
+

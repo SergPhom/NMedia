@@ -9,7 +9,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             tools:context=".SinglePostFragment">
-                <ScrollView
+   /*post*/     <ScrollView
                     android:id="@+id/post_container"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -20,7 +20,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:padding="@dimen/offset">
-                                <ImageView
+        /*avatar*/              <ImageView
                                     android:id="@+id/avatar"
                                     android:layout_width="@dimen/avatar_size"
                                     android:layout_height="@dimen/avatar_size"
@@ -29,7 +29,7 @@
                                     tools:ignore="ContentDescription"
                                     tools:srcCompat="@sample/posts_avatars" />
 
-                                <TextView
+       /*author*/               <TextView
                                     android:id="@+id/author"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
@@ -45,7 +45,7 @@
                                     app:layout_constraintVertical_chainStyle="packed"
                                     tools:text="@sample/posts.json/data/author" />
 
-                                <TextView
+        /*published*/           <TextView
                                     android:id="@+id/published"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
                                     app:layout_constraintTop_toBottomOf="@+id/author"
                                     tools:text="@sample/posts.json/data/published" />
 
-                                <com.google.android.material.button.MaterialButton
+       /*menu*/                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/menu"
                                     style="@style/Widget.App.Button.OutlinedButton.Menu"
                                     android:padding="0dp"
@@ -70,7 +70,7 @@
                                     app:barrierDirection="bottom"
                                     app:constraint_referenced_ids="author, avatar, menu, published" />
 
-                                <TextView
+       /*content*/              <TextView
                                     android:id="@+id/content"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
                                     app:barrierDirection="bottom"
                                     app:constraint_referenced_ids="content" />
 
-                                <com.google.android.material.button.MaterialButtonToggleGroup
+      /*likes,shares..*/        <com.google.android.material.button.MaterialButtonToggleGroup
                                     android:id="@+id/button_group"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
@@ -131,11 +131,9 @@
                                     app:barrierDirection="bottom"
                                     app:constraint_referenced_ids="button_group"/>
 
-
-
                         </androidx.constraintlayout.widget.ConstraintLayout>
                 </ScrollView>
-                <FrameLayout
+   /*attach*/   <FrameLayout
                     android:id="@+id/attachment_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">

@@ -19,4 +19,15 @@
     <string name="retry_saving">This post haven\'t been saved on server yet. Retry save on server</string>
     <string name="newer_posts">Newer posts</string>
     <string name="remove">Remove</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="password">Password</string>
+    <string name="enter_password">Enter</string>
+    <string name="login">Login</string>
+    <string name="authentication">Please, sign in to continue</string>
+    <string name="cancel">Cancel</string>
+    <string name="are_you_shure">Are You shure?</string>
+    <string name="name">Name</string>
+    <string name="password_confirm">Confirm your password</string>
 </resources>
