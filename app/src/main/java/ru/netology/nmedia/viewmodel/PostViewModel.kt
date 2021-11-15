@@ -92,8 +92,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application){
         edited.postValue(empty.copy(authorId = AppAuth.getInstance().authStateFlow.value.id))
     }
 
-
-
     fun loadPosts() = viewModelScope.launch {
         try {
             _dataState.value = FeedModelState(loading = true)

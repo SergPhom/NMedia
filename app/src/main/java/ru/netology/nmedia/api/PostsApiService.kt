@@ -12,6 +12,7 @@ import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.PushToken
 
 private const val BASE_URL = "${BuildConfig.BASE_URL}/api/" +
 //        "slow/" +
@@ -58,6 +59,9 @@ interface PostsApiService {
     @POST("posts")
     suspend fun save(@Body post: Post):  Response<Post>
 
+    @POST("users/push-tokens")
+    suspend fun save(@Body pushToken: PushToken): Response<Unit>
+
     @DELETE("posts/{id}")
     suspend fun removeById(@Path("id") id: Long):  Response<Unit>
 
@@ -68,6 +72,11 @@ interface PostsApiService {
     @POST("media")
     suspend fun upload(@Part media: MultipartBody.Part): Response<Media>
 
+    @Headers("Content-Type: application/json")
+    @POST("pushes")
+    suspend fun pushes (
+        @Field("recepientId") id: Long? = null,
+        @Field("content") content: String = "Wow")
 
 }
 

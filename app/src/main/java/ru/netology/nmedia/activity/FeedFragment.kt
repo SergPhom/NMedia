@@ -127,7 +127,7 @@ class FeedFragment : Fragment() {
             }
         }
         viewModel.authenticated.observe(viewLifecycleOwner){
-            println(" $it ")
+            println("FF auth is $it ")
         }
 
         //**************************************************************Listeners

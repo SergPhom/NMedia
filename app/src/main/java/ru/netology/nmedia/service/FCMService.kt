@@ -10,6 +10,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import java.lang.IllegalArgumentException
 import kotlin.random.Random
 
@@ -45,7 +46,9 @@ class FCMService : FirebaseMessagingService() {
                         )
                     )
                 }
+                return
             }
+            handleContent(gson.fromJson(message.data[content], PushMessage::class.java))
         }
         catch (e: IllegalArgumentException){
             println("No such action class, $e")
@@ -53,8 +56,26 @@ class FCMService : FirebaseMessagingService() {
         }
     }
 
+    private fun handleContent(message: PushMessage) {
+        val id = AppAuth.getInstance().authStateFlow.value.id
+        when(message.recipientId){
+            id,null -> {
+                val notification = NotificationCompat.Builder(this, channelId)
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setContentTitle(message.content)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .build()
+
+                NotificationManagerCompat.from(this)
+                    .notify(Random.nextInt(100_000), notification)
+            }
+            else -> AppAuth.getInstance().sendPushToken()
+        }
+
+    }
+
     override fun onNewToken(token: String) {
-        //println("AAAA $token")
+        AppAuth.getInstance().sendPushToken(token)
     }
 
     private fun handleLike(content: Like) {
@@ -105,4 +126,9 @@ data class NewPost(
     val userName: String,
     val postId: Long,
     val postText: String,
+)
+
+data class PushMessage(
+    val recipientId: Long?,
+    val content: String
 )

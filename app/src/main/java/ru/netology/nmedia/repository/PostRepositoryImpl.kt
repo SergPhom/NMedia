@@ -75,6 +75,7 @@ class PostRepositoryImpl(private val dao: PostDao): PostRepository {
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             dao.onRemoveClick(post.id)
             dao.insert(PostEntity.fromDto(body))
+            PostsApi.retrofitService.pushes()
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {

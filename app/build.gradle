@@ -41,7 +41,7 @@ android {
         }
         debug {
             manifestPlaceholders.usesCleartextTraffic = true
-            buildConfigField "String", "BASE_URL", '"http://192.168.1.6:9999"'
+            buildConfigField "String", "BASE_URL", '"http://192.168.1.7:9999"'
         }
     }
 }
@@ -101,10 +101,11 @@ dependencies {
 
     def coroutines_version = "1.5.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutines_version"
 
     def imagepicker_version = "2.1"
     implementation "com.github.dhaval2404:imagepicker:$imagepicker_version"
-
+    
     def junit_version = "4.13.2"
     testImplementation "junit:junit:$junit_version"
 
