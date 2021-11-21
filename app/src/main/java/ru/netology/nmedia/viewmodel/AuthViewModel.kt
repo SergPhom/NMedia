@@ -4,33 +4,37 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.api.UserLoginPass
-import ru.netology.nmedia.api.UsersApi
+import ru.netology.nmedia.api.UsersApiService
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
-import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
+import javax.inject.Inject
 
-class AuthViewModel : ViewModel() {
-    val data: LiveData<AuthState> = AppAuth.getInstance()
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val appAuth: AppAuth,
+    private val usersApiService: UsersApiService
+): ViewModel() {
+    val data: LiveData<AuthState> = appAuth
         .authStateFlow
         .asLiveData(Dispatchers.Default)
     val authenticated: Boolean
-        get() = AppAuth.getInstance().authStateFlow.value.id != 0L
+        get() = appAuth.authStateFlow.value.id != 0L
 
     fun setAuth(id: Long, token: String){
-        AppAuth.getInstance().setAuth(id,token)
+        appAuth.setAuth(id,token)
     }
 
     fun getToken(login: String, pass: String): Boolean{
         viewModelScope.launch {
             try {
-                val response = UsersApi.retrofitService.getToken(
+                val response = usersApiService.getToken(
                     login,pass
                 )
                 if (!response.isSuccessful) {

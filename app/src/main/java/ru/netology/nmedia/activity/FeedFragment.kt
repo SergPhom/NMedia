@@ -15,27 +15,18 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.adapter.Callback
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
+import javax.inject.Inject
 
+@AndroidEntryPoint
+class FeedFragment: Fragment() {
 
-class FeedFragment : Fragment() {
-
-    private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
-    )
-
-//    override fun onStart() {
-//        super.onStart()
-//        if (activity is AppActivity) {
-//            val statusBarColor = ContextCompat.getColor(requireActivity(),R.color.black)
-//            activity.window.statusBarColor = statusBarColor
-//            activity.supportActionBar?.setBackgroundDrawable(ColorDrawable(statusBarColor))
-//        }
-//    }
+    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(

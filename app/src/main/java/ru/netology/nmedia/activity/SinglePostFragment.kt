@@ -13,7 +13,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import ru.netology.nmedia.BuildConfig
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSinglePostBinding
 import ru.netology.nmedia.dto.Post
@@ -21,24 +21,13 @@ import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.view.load
 import ru.netology.nmedia.view.loadCircleCrop
 import ru.netology.nmedia.viewmodel.PostViewModel
+import ru.netology.nmedia.BuildConfig
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SinglePostFragment: Fragment() {
-    companion object{
-        fun getNewInstance(post: Post): SinglePostFragment {
-            val singlePostFragment = SinglePostFragment()
-            singlePostFragment.arguments?.putParcelable("ARG_POST", post)
-            return singlePostFragment
-        }
-    }
 
-    private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
-    )
-
-//    override fun onStart() {
-//        super.onStart()
-//        (activity as AppCompatActivity).supportActionBar!!.hide()
-//    }
+    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -136,21 +125,26 @@ class SinglePostFragment: Fragment() {
                                 videoPlay.visibility = View.VISIBLE
                                 video.setOnClickListener {
                                     val intent = Intent(Intent.ACTION_VIEW,
-                                        Uri.parse("${BuildConfig.BASE_URL}/media/${post.attachment.url}"))
+                                        Uri.parse("${BuildConfig.BASE_URL}" +
+                                                "/media/${post.attachment.url}"))
                                     startActivity(intent)
                                 }
                                 videoPlay.setOnClickListener {
                                     val intent = Intent(Intent.ACTION_VIEW,
-                                        Uri.parse("${BuildConfig.BASE_URL}/media/${post.attachment.url}"))
+                                        Uri.parse("${BuildConfig.BASE_URL}" +
+                                                "/media/${post.attachment.url}"))
                                     startActivity(intent)
                                 }
                             }
                             AttachmentType.IMAGE ->{
                                 if(post.id == 0L){
-                                    attachmentContainer.setBackgroundColor(resources.getColor(R.color.black))
+                                    attachmentContainer
+                                        .setBackgroundColor(resources.getColor(R.color.black))
                                 }
                                 imageAttachment.visibility = View.VISIBLE
-                                imageAttachment.load("${BuildConfig.BASE_URL}/media/${post.attachment.url}")
+                                imageAttachment
+                                    .load("${BuildConfig.BASE_URL}" +
+                                            "/media/${post.attachment.url}")
                             }
                         }
                     }

@@ -8,29 +8,41 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.viewmodel.AuthViewModel
-import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.viewmodel.SharedViewModel
+import javax.inject.Inject
 
-
-class AppActivity : AppCompatActivity(R.layout.activity_app) {
+@AndroidEntryPoint
+class AppActivity: AppCompatActivity(R.layout.activity_app) {
 
     private val viewModel: AuthViewModel by viewModels()
     private val model: SharedViewModel by viewModels()
 
+    @Inject
+    lateinit var appAuth: AppAuth
+
+    @Inject
+    lateinit var googleApiAvailability: GoogleApiAvailability
+
+    @Inject
+    lateinit var firebaseInstallations: FirebaseInstallations
+
+    @Inject
+    lateinit var firebaseMessaging: FirebaseMessaging
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-
-        val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
 
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
@@ -53,6 +65,26 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         lifecycleScope
         viewModel.data.observe(this) {
             invalidateOptionsMenu()
+        }
+
+        firebaseInstallations.id.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                println("some stuff happened: ${task.exception}")
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            println("FirebaseInst $token")
+        }
+
+        firebaseMessaging.token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                println("some stuff happened: ${task.exception}")
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            println("FirebaseMess $token")
         }
 
         checkGoogleApiAvailability()
@@ -87,7 +119,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 if(findNavController(R.id.nav_host_fragment)?.currentDestination?.id == R.id.newPostFragment){
                     model.select()
                 }else {
-                AppAuth.getInstance().removeAuth()}
+                    appAuth.removeAuth()}
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -95,7 +127,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
     }
 
     private fun checkGoogleApiAvailability() {
-        with(GoogleApiAvailability.getInstance()) {
+        with(googleApiAvailability) {
             val code = isGooglePlayServicesAvailable(this@AppActivity)
             if (code == ConnectionResult.SUCCESS) {
                 return@with
@@ -106,9 +138,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
             }
             Toast.makeText(this@AppActivity, R.string.google_play_unavailable, Toast.LENGTH_LONG)
                 .show()
-        }
-
-        FirebaseMessaging.getInstance().token.addOnSuccessListener {
         }
     }
     override fun onPause() {

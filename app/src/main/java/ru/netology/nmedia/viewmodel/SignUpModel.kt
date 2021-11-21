@@ -2,23 +2,29 @@ package ru.netology.nmedia.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.api.UsersApi
+import ru.netology.nmedia.api.UsersApiService
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
+import javax.inject.Inject
 
-class SignUpModel: ViewModel() {
+@HiltViewModel
+class SignUpModel @Inject constructor(
+    private val usersApiService: UsersApiService,
+    private val appAuth: AppAuth
+): ViewModel() {
 
     fun setAuth(id: Long, token: String){
-        AppAuth.getInstance().setAuth(id,token)
+        appAuth.setAuth(id,token)
     }
     fun registrate(login: String, password: String, name: String) {
         viewModelScope.launch {
             try {
-                val response = UsersApi.retrofitService.registration(login, password, name)
+                val response = usersApiService.registration(login, password, name)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }

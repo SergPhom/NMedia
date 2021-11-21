@@ -22,17 +22,21 @@ import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.viewmodel.PostViewModel
 import com.github.dhaval2404.imagepicker.*
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.viewmodel.SharedViewModel
+import javax.inject.Inject
 
-class NewPostFragment : Fragment() {
+@AndroidEntryPoint
+class NewPostFragment: Fragment() {
+
+    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+
+    lateinit var appAuth: AppAuth
 
     private var fragmentBinding: FragmentNewPostBinding? = null
 
-    private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
-    )
     private val model: SharedViewModel by activityViewModels<SharedViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -147,7 +151,7 @@ class NewPostFragment : Fragment() {
         }
 
         binding.signOutButton.setOnClickListener {
-            AppAuth.getInstance().removeAuth()
+           appAuth.removeAuth()
             with(binding.content){
                 viewModel.cancel()
                 setText("")
