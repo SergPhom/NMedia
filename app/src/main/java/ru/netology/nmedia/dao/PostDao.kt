@@ -1,5 +1,6 @@
 package ru.netology.nmedia.dao
 
+import androidx.paging.PagingSource
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.entity.PostEntity
@@ -8,11 +9,13 @@ import ru.netology.nmedia.entity.PostEntity
 interface PostDao {
 
     @Query("SELECT * FROM PostEntity ORDER BY id DESC")
-    fun getAll(): Flow<List<PostEntity>>
+    suspend fun getAll(): List<PostEntity>
 
     @Query("SELECT * FROM PostEntity WHERE id = :id")
     fun getById(id: Long): Flow<PostEntity>
 
+    @Query("SELECT * FROM PostEntity WHERE id >= :id limit :size")
+    fun getByIdAndSize(id: Long, size: Int): Flow<List<PostEntity>>
 
 //////////////////////////////////////////////////////////////////////////////////////////
     @Query("SELECT COUNT(viewed) as count FROM PostEntity WHERE viewed = 0")

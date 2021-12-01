@@ -4,8 +4,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
@@ -28,18 +28,29 @@ interface Callback {
 
 class PostsAdapter(
     private val callback: Callback
-) :
-    ListAdapter<Post, PostViewHolder>(PostsDiffCallback()) {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val binding = CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return PostViewHolder(binding,
-            callback
-        )
-    }
+) : PagingDataAdapter<Post, PostViewHolder>(diffCallback) {
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        getItem(position)?.let {
+            holder.bind(it)
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
+        val binding = CardPostBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false)
+        return PostViewHolder(binding, callback)
+    }
+    companion object {
+        val diffCallback = object : DiffUtil.ItemCallback<Post>() {
+            override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 }
 
@@ -130,13 +141,3 @@ class PostViewHolder(
     }
 }
 
-class PostsDiffCallback: DiffUtil.ItemCallback<Post>() {
-    override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
-        return oldItem.id == newItem.id
-    }
-
-    override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
-        return oldItem == newItem
-    }
-
-}

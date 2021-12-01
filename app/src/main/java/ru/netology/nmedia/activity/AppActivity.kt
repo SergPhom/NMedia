@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
@@ -74,7 +73,7 @@ class AppActivity: AppCompatActivity(R.layout.activity_app) {
             }
 
             val token = task.result
-            println("FirebaseInst $token")
+//            println("FirebaseInst $token")
         }
 
         firebaseMessaging.token.addOnCompleteListener { task ->
@@ -84,7 +83,7 @@ class AppActivity: AppCompatActivity(R.layout.activity_app) {
             }
 
             val token = task.result
-            println("FirebaseMess $token")
+//            println("FirebaseMess $token")
         }
 
         checkGoogleApiAvailability()

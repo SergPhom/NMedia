@@ -52,105 +52,105 @@ class SinglePostFragment: Fragment() {
         }
         requireActivity().onBackPressedDispatcher.addCallback(callback)
 
-        viewModel.data.observe(viewLifecycleOwner) {
-            val post =  arguments?.getParcelable<Post>("ARG_POST")
-            with(binding) {
-                if (post != null) {
-                    if(post.id != 0L){
-                        postContainer.visibility = View.VISIBLE
-                        avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
-                        author.text = post.author
-                        published.text = post.published.toString()
-                        content.text = post.content
-                        shares.text = post.count(post.shares)
-                        viewes.text = "${post.viewes}"
-
-                        likes.text = "${post.likes}"
-                        likes.setIconResource(
-                        if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24)
-                        likes.isChecked = post.likedByMe
-                        likes.setIconTintResource(R.color.like_button_tint)
-                    //*********************************************************LISTENERS
-                    likes.setOnClickListener {
-                        try {
-                            viewModel.onLiked(post)
-                        }catch (e: Throwable){
-                            println("AAA $e")
-                        }
-                    }
-
-                    shares.setOnClickListener {
-                        viewModel.onShared(post)
-                        shares.isChecked = false
-                        val intent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_TEXT, post.content)
-                            type = "text/plain"
-                        }
-                        val shareIntent =
-                            Intent.createChooser(intent, getString(R.string.chooser_share_post))
-                        startActivity(shareIntent)
-                        }
-
-                    menu.setOnClickListener {
-                        PopupMenu(it.context, it).apply {
-                            inflate(R.menu.menu_post)
-                            setOnMenuItemClickListener { item ->
-                                when (item.itemId) {
-                                    R.id.remove -> {
-                                        viewModel.onRemove(post)
-                                        findNavController().navigateUp()
-                                        true
-                                    }
-                                    R.id.edit -> {
-                                        viewModel.onEdit(post)
-                                        val bundle = bundleOf("textArg" to post.content)
-                                        findNavController().navigate(
-                                            R.id.action_singlePostFragment_to_newPostFragment,
-                                            bundle
-                                        )
-                                        true
-                                    }
-                                    else -> false
-                                }
-                            }
-                        }.show()
-                    }
-                    }
-                    //*******************************************************OPTIONS
-                    if (post.attachment != null) {
-                        when (post.attachment.type){
-                            AttachmentType.VIDEO -> {
-                                video.visibility = View.VISIBLE
-                                videoPlay.visibility = View.VISIBLE
-                                video.setOnClickListener {
-                                    val intent = Intent(Intent.ACTION_VIEW,
-                                        Uri.parse("${BuildConfig.BASE_URL}" +
-                                                "/media/${post.attachment.url}"))
-                                    startActivity(intent)
-                                }
-                                videoPlay.setOnClickListener {
-                                    val intent = Intent(Intent.ACTION_VIEW,
-                                        Uri.parse("${BuildConfig.BASE_URL}" +
-                                                "/media/${post.attachment.url}"))
-                                    startActivity(intent)
-                                }
-                            }
-                            AttachmentType.IMAGE ->{
-                                if(post.id == 0L){
-                                    attachmentContainer
-                                        .setBackgroundColor(resources.getColor(R.color.black))
-                                }
-                                imageAttachment.visibility = View.VISIBLE
-                                imageAttachment
-                                    .load("${BuildConfig.BASE_URL}" +
-                                            "/media/${post.attachment.url}")
-                            }
-                        }
-                    }
-                }
-            }
-        }
+//        viewModel.data.observe(viewLifecycleOwner) {
+//            val post =  arguments?.getParcelable<Post>("ARG_POST")
+//            with(binding) {
+//                if (post != null) {
+//                    if(post.id != 0L){
+//                        postContainer.visibility = View.VISIBLE
+//                        avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
+//                        author.text = post.author
+//                        published.text = post.published.toString()
+//                        content.text = post.content
+//                        shares.text = post.count(post.shares)
+//                        viewes.text = "${post.viewes}"
+//
+//                        likes.text = "${post.likes}"
+//                        likes.setIconResource(
+//                        if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_likes_24)
+//                        likes.isChecked = post.likedByMe
+//                        likes.setIconTintResource(R.color.like_button_tint)
+//                    //*********************************************************LISTENERS
+//                    likes.setOnClickListener {
+//                        try {
+//                            viewModel.onLiked(post)
+//                        }catch (e: Throwable){
+//                            println("AAA $e")
+//                        }
+//                    }
+//
+//                    shares.setOnClickListener {
+//                        viewModel.onShared(post)
+//                        shares.isChecked = false
+//                        val intent = Intent().apply {
+//                            action = Intent.ACTION_SEND
+//                            putExtra(Intent.EXTRA_TEXT, post.content)
+//                            type = "text/plain"
+//                        }
+//                        val shareIntent =
+//                            Intent.createChooser(intent, getString(R.string.chooser_share_post))
+//                        startActivity(shareIntent)
+//                        }
+//
+//                    menu.setOnClickListener {
+//                        PopupMenu(it.context, it).apply {
+//                            inflate(R.menu.menu_post)
+//                            setOnMenuItemClickListener { item ->
+//                                when (item.itemId) {
+//                                    R.id.remove -> {
+//                                        viewModel.onRemove(post)
+//                                        findNavController().navigateUp()
+//                                        true
+//                                    }
+//                                    R.id.edit -> {
+//                                        viewModel.onEdit(post)
+//                                        val bundle = bundleOf("textArg" to post.content)
+//                                        findNavController().navigate(
+//                                            R.id.action_singlePostFragment_to_newPostFragment,
+//                                            bundle
+//                                        )
+//                                        true
+//                                    }
+//                                    else -> false
+//                                }
+//                            }
+//                        }.show()
+//                    }
+//                    }
+//                    //*******************************************************OPTIONS
+//                    if (post.attachment != null) {
+//                        when (post.attachment.type){
+//                            AttachmentType.VIDEO -> {
+//                                video.visibility = View.VISIBLE
+//                                videoPlay.visibility = View.VISIBLE
+//                                video.setOnClickListener {
+//                                    val intent = Intent(Intent.ACTION_VIEW,
+//                                        Uri.parse("${BuildConfig.BASE_URL}" +
+//                                                "/media/${post.attachment.url}"))
+//                                    startActivity(intent)
+//                                }
+//                                videoPlay.setOnClickListener {
+//                                    val intent = Intent(Intent.ACTION_VIEW,
+//                                        Uri.parse("${BuildConfig.BASE_URL}" +
+//                                                "/media/${post.attachment.url}"))
+//                                    startActivity(intent)
+//                                }
+//                            }
+//                            AttachmentType.IMAGE ->{
+//                                if(post.id == 0L){
+//                                    attachmentContainer
+//                                        .setBackgroundColor(resources.getColor(R.color.black))
+//                                }
+//                                imageAttachment.visibility = View.VISIBLE
+//                                imageAttachment
+//                                    .load("${BuildConfig.BASE_URL}" +
+//                                            "/media/${post.attachment.url}")
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
         return binding.root
     }
 }

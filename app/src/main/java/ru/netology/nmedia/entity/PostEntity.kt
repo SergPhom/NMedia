@@ -60,7 +60,7 @@ data class PostEntity(
 
 data class AttachmentEmbeddable(
     var url: String,
-    val description: String,
+    val description: String?,
     var type: AttachmentType,
 ) {
     fun toDto() = Attachment(url, description, type)

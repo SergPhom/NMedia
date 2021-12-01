@@ -69,7 +69,6 @@ class AppAuth @Inject constructor(
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 Firebase.messaging.deleteToken()
-                println("AppAuth token deleted")
             } catch (e: Exception){
                 e.printStackTrace()
             }

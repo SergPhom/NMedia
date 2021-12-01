@@ -18,10 +18,11 @@ object DbModule {
     @Singleton
     fun provideDatabase(
         @ApplicationContext context: Context
-    ): AppDb = AppDb.buildDatabase(context)
+    ): AppDb  = AppDb.buildDatabase(context)
+
 
     @Provides
     fun providePostDao(
         appDb: AppDb
-    ):PostDao = appDb.postDao()
+    ):PostDao  = appDb.postDao()
 }

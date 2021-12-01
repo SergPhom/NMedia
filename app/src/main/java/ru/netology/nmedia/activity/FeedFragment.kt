@@ -12,10 +12,19 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
+import androidx.paging.flatMap
+import androidx.paging.map
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import ru.netology.nmedia.adapter.Callback
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
@@ -26,7 +35,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class FeedFragment: Fragment() {
 
-    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment)
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -42,8 +52,9 @@ class FeedFragment: Fragment() {
 
         val adapter = PostsAdapter(object : Callback {
             override fun onLiked(post: Post) {
-               if(viewModel.authenticated.value == true) viewModel.onLiked(post)
-               else binding.signInDialog.visibility = View.VISIBLE
+                viewModel.onLiked(post)
+//               if(viewModel.authenticated.value == true) viewModel.onLiked(post)
+//               else binding.signInDialog.visibility = View.VISIBLE
             }
 
             override fun onShared(post: Post) {
@@ -91,41 +102,63 @@ class FeedFragment: Fragment() {
         binding.list.adapter = adapter
 
         //****************************************************************Observers
-        viewModel.newerCount.observe(viewLifecycleOwner){
-            binding.newerPosts.isVisible = it > 0
-            binding.newerPosts.text =  "${getString(R.string.newer_posts)} - "+
-                    " ${viewModel.newerCount.value}"
+//        viewModel.newerCount.observe(viewLifecycleOwner){
+//            binding.newerPosts.isVisible = it > 0
+//            binding.newerPosts.text =  "${getString(R.string.newer_posts)} - "+
+//                    " ${viewModel.newerCount.value}"
+//        }
+
+        lifecycleScope.launchWhenCreated {
+//            viewModel.data.collectLatest(adapter::submitData)
+//            viewModel.data.collectLatest{  println("FF $it")}
+            viewModel.data.collectLatest {
+                println("FF start collecting, paging data is $it")
+                try {
+                    adapter.submitData(it)
+                } catch (e: Throwable) {
+                    println("FF err ${e.stackTrace}")
+                }
+                println("FF paging done")
+            }
+
+
+//            { state ->
+//                val viewedPosts = state.posts.filter{it.viewed}
+//                val notTopPosition = adapter.itemCount > 0 && adapter.itemCount < state.posts.size
+//                adapter.submitData(viewedPosts){
+//                    if(notTopPosition && !binding.newerPosts.isVisible) binding.list.smoothScrollToPosition(0)
+//                }
+//                binding.emptyText.isVisible = state
+//
+//            }
         }
 
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            val viewedPosts = state.posts.filter{it.viewed}
-            val notTopPosition = adapter.itemCount > 0 && adapter.itemCount < state.posts.size
-            adapter.submitList(viewedPosts){
-                if(notTopPosition && !binding.newerPosts.isVisible) binding.list.smoothScrollToPosition(0)
+        lifecycleScope.launchWhenCreated {
+            adapter.loadStateFlow.collectLatest { state ->
+                binding.refresh.isRefreshing =
+                    state.refresh is LoadState.Loading ||
+                    state.prepend is LoadState.Loading ||
+                    state.append is LoadState.Loading
             }
-            binding.emptyText.isVisible = state.empty
+        }
 
-        }
-        viewModel.dataState.observe(viewLifecycleOwner) { state ->
-            binding.progress.isVisible = state.loading
-            binding.errorGroup.isVisible = state.error
-            binding.refresh.isRefreshing = state.refreshing
-            if(!state.msg.isNullOrBlank()){
-                Snackbar.make(binding.root,
-                    "Error ${state.msg}. Please retry later.",
-                    Snackbar.LENGTH_INDEFINITE)
-                    .show()
-            }
-        }
+//        viewModel.dataState.observe(viewLifecycleOwner) { state ->
+//            binding.progress.isVisible = state.loading
+//            binding.errorGroup.isVisible = state.error
+//            binding.refresh.isRefreshing = state.refreshing
+//            if(!state.msg.isNullOrBlank()){
+//                Snackbar.make(binding.root,
+//                    "Error ${state.msg}. Please retry later.",
+//                    Snackbar.LENGTH_INDEFINITE)
+//                    .show()
+//            }
+//        }
         viewModel.authenticated.observe(viewLifecycleOwner){
-            println("FF auth is $it ")
+//            println("FF auth is $it ")
         }
 
         //**************************************************************Listeners
-        binding.refresh.setOnRefreshListener {
-            viewModel.refreshPosts()
-            binding.refresh.isRefreshing = false
-        }
+        binding.refresh.setOnRefreshListener(adapter::refresh)
 
         binding.newerPosts.setOnClickListener {
             binding.newerPosts.isVisible = false
