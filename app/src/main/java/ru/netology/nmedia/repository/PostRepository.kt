@@ -33,5 +33,5 @@ interface PostRepository {
 
     suspend fun upload(upload: MediaUpload): Media
 
-    suspend fun fillInDb()
+//    suspend fun fillInDb()
 }

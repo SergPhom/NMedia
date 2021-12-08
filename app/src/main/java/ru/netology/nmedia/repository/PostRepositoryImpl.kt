@@ -33,7 +33,7 @@ class PostRepositoryImpl @Inject constructor(
     override val data = Pager(
         PagingConfig(pageSize = 30, enablePlaceholders = false),
         pagingSourceFactory = {
-            PostPagingSource(dao)
+            PostPagingSource(postsApiService, dao)
         }
     )
         .flow
@@ -201,25 +201,26 @@ class PostRepositoryImpl @Inject constructor(
             throw UnknownError
         }
     }
-    private val faker = Faker()
-    var posts = emptyList<PostEntity>()
-    override suspend fun fillInDb() {
-        (1..200L).forEach{
-               posts += PostEntity(
-                    id = 200L - it,
-                    authorId = 3L,
-                    author = "Game of Thrones",
-                    authorAvatar = "got.jpg",
-                    content = faker.gameOfThrones().quote(),
-                    published = 0L,
-                    likedByMe = false,
-                    likes = 0L,
-                    viewes = 20L,
-                    saved = true,
-                    viewed = true,
-                )
-            println("repo post num $it added")
-        }
-        dao.insert(posts)
-    }
+
+//    private val faker = Faker()
+//    var posts = emptyList<PostEntity>()
+//    override suspend fun fillInDb() {
+//        (1..200L).forEach{
+//               posts += PostEntity(
+//                    id = 200L - it,
+//                    authorId = 3L,
+//                    author = "Game of Thrones",
+//                    authorAvatar = "got.jpg",
+//                    content = faker.gameOfThrones().quote(),
+//                    published = 0L,
+//                    likedByMe = false,
+//                    likes = 0L,
+//                    viewes = 20L,
+//                    saved = true,
+//                    viewed = true,
+//                )
+//            println("repo post num $it added")
+//        }
+//        dao.insert(posts)
+//    }
 }

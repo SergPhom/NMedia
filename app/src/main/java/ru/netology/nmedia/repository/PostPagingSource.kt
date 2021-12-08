@@ -13,38 +13,36 @@ import ru.netology.nmedia.entity.PostEntity
 import java.lang.Exception
 
 class PostPagingSource(
-//    private val apiService: PostsApiService,
+    private val apiService: PostsApiService,
     private val dao: PostDao
 ): PagingSource<Long, Post>() {
 
+    override val keyReuseSupported = true
     override fun getRefreshKey(state: PagingState<Long, Post>): Long? {
-        val anchorPosition = state.anchorPosition ?: return null
-        val page = state.closestPageToPosition(anchorPosition) ?: return null
-        return page.prevKey?.plus(1) ?: page.nextKey?.minus(1)
+        return null
     }
 
     override suspend fun load(params: LoadParams<Long>): LoadResult<Long, Post> {
-        val position = params.key ?: POST_STARTING_PAGE_INDEX
         try{
-//            val response = when (params) {
-//                is LoadParams.Refresh -> {
-//                    apiService.getLatest(params.loadSize)
-//                }
-//                is LoadParams.Append -> {
-//                    apiService.getBefore(params.key, params.loadSize)
-//                }
-//                is LoadParams.Prepend -> return LoadResult.Page(
-//                    data = emptyList(),
-//                    prevKey = params.key,
-//                    nextKey = null
-//                )
-//            }
-//            if (!response.isSuccessful) {
-//                error(HttpException(response))
-//            }
-//            val posts = response.body().orEmpty()
-            println("PostPS  is working")
-            var posts = dao.getAll().map { postEntity -> postEntity.toDto() }
+            val response = when (params) {
+                is LoadParams.Refresh -> {
+                    apiService.getLatest(params.loadSize)
+                }
+                is LoadParams.Append -> {
+                    apiService.getBefore(params.key, params.loadSize)
+                }
+                is LoadParams.Prepend -> return LoadResult.Page(
+                    data = emptyList(),
+                    prevKey = params.key,
+                    nextKey = null
+                )
+            }
+            if (!response.isSuccessful) {
+                error(HttpException(response))
+            }
+            val posts = response.body().orEmpty()
+
+//            var posts = dao.getAll().map { postEntity -> postEntity.toDto() }
 
             return LoadResult.Page(posts, params.key, posts.lastOrNull()?.id)
         }catch (e: Throwable){
