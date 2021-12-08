@@ -52,9 +52,8 @@ class FeedFragment: Fragment() {
 
         val adapter = PostsAdapter(object : Callback {
             override fun onLiked(post: Post) {
-                viewModel.onLiked(post)
-//               if(viewModel.authenticated.value == true) viewModel.onLiked(post)
-//               else binding.signInDialog.visibility = View.VISIBLE
+               if(viewModel.authenticated.value == true) viewModel.onLiked(post)
+               else binding.signInDialog.visibility = View.VISIBLE
             }
 
             override fun onShared(post: Post) {
@@ -109,18 +108,7 @@ class FeedFragment: Fragment() {
 //        }
 
         lifecycleScope.launchWhenCreated {
-//            viewModel.data.collectLatest(adapter::submitData)
-//            viewModel.data.collectLatest{  println("FF $it")}
-            viewModel.data.collectLatest {
-                println("FF start collecting, paging data is $it")
-                try {
-                    adapter.submitData(it)
-                } catch (e: Throwable) {
-                    println("FF err ${e.stackTrace}")
-                }
-                println("FF paging done")
-            }
-
+            viewModel.data.collectLatest(adapter::submitData)
 
 //            { state ->
 //                val viewedPosts = state.posts.filter{it.viewed}
@@ -154,11 +142,13 @@ class FeedFragment: Fragment() {
 //            }
 //        }
         viewModel.authenticated.observe(viewLifecycleOwner){
-//            println("FF auth is $it ")
+            adapter.refresh()
         }
 
         //**************************************************************Listeners
-        binding.refresh.setOnRefreshListener(adapter::refresh)
+        binding.refresh.setOnRefreshListener {
+            adapter.refresh()
+        }
 
         binding.newerPosts.setOnClickListener {
             binding.newerPosts.isVisible = false

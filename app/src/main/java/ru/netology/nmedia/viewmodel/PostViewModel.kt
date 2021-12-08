@@ -49,17 +49,16 @@ class PostViewModel @Inject constructor(
 
     private val cashed = repository.data
         .cachedIn(viewModelScope)
-    val data: Flow<PagingData<Post>> = cashed
 
-//    val data: Flow<PagingData<Post>> = appAuth
-//        .authStateFlow
-//        .flatMapLatest { (myId, _) ->
-//            cashed.map { posts ->
-//                posts.map {
-//                    it.copy(ownedByMe = it.authorId == myId)
-//                }
-//            }
-//        }
+    val data: Flow<PagingData<Post>> = appAuth
+        .authStateFlow
+        .flatMapLatest { (myId, _) ->
+            cashed.map { posts ->
+                posts.map {
+                    it.copy(ownedByMe = it.authorId == myId)
+                }
+            }
+        }
 
 
     val authenticated = appAuth
@@ -90,12 +89,12 @@ class PostViewModel @Inject constructor(
     val photo: LiveData<PhotoModel>
         get() = _photo
 
-    init {
-        viewModelScope.launch {
-            repository.fillInDb()
-        }
-       // loadPosts()
-    }
+//    init {
+//        viewModelScope.launch {
+//            repository.fillInDb()
+//        }
+//        loadPosts()
+//    }
 
     fun forAuthenticated() {
         edited.postValue(empty.copy(authorId = appAuth.authStateFlow.value.id))
