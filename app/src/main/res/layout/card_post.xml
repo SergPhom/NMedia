@@ -80,14 +80,21 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/low_barrier">
+        app:layout_constraintTop_toTopOf="@id/low_barrier"
+        android:visibility="visible">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/likes"
             style="@style/Widget.App.Button.OutlinedButton.LikeShare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
             android:text="@sample/posts.json/data/likes"
             app:icon="@drawable/ic_likes_24dp"
-            tools:checked="false" />
+            app:iconTint="@color/like_button_tint"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:checked="true"
+            tools:text="@sample/posts.json/data/likes" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/shares"
@@ -103,13 +110,25 @@
             android:layout_weight="1"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/viewed"
+            android:id="@+id/viewes"
             style="@style/Widget.App.Button.OutlinedButton.LikeShare"
             android:text="@sample/posts.json/data/viewed"
             app:iconTint="?attr/colorControlNormal"
             app:icon="@drawable/ic_viewed_24" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/retry_saving"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/button_group"
+        android:text="@string/retry_saving"
+        tools:text="@string/retry_saving" />
+
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/ground_barrier"
@@ -148,6 +167,17 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:constraint_referenced_ids="video, video_play"/>
+
+    <ImageView
+        android:id="@+id/image_attachment"
+        android:layout_width="wrap_content"
+        android:layout_height="250dp"
+        android:scaleType="fitStart"
+        android:layout_gravity="top"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ground_barrier"
+        tools:srcCompat="@drawable/im1"
+        android:visibility="gone"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,7 +8,7 @@
     </style>
 
     <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="iconTint">@color/like_bunnot_tint</item>
+        <item name="iconTint">@color/like_button_tint</item>
         <item name="android:paddingLeft">4dp</item>
         <item name="android:paddingRight">4dp</item>
         <item name="iconPadding">@dimen/icon_button_padding</item>
