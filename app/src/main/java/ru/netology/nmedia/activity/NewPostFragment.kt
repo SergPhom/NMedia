@@ -4,12 +4,10 @@ import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -23,21 +21,22 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 import com.github.dhaval2404.imagepicker.*
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
 import dagger.hilt.android.AndroidEntryPoint
-import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.viewmodel.SharedViewModel
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class NewPostFragment: Fragment() {
 
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
 
+    private val model: SharedViewModel by viewModels(ownerProducer = ::requireParentFragment)
+
     lateinit var appAuth: AppAuth
 
     private var fragmentBinding: FragmentNewPostBinding? = null
 
-    private val model: SharedViewModel by activityViewModels<SharedViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

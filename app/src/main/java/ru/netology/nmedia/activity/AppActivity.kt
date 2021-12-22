@@ -25,6 +25,7 @@ import javax.inject.Inject
 class AppActivity: AppCompatActivity(R.layout.activity_app) {
 
     private val viewModel: AuthViewModel by viewModels()
+
     private val model: SharedViewModel by viewModels()
 
     @Inject
