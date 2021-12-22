@@ -2,10 +2,7 @@ package ru.netology.nmedia.viewmodel
 
 import android.net.Uri
 import androidx.lifecycle.*
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import androidx.paging.insertHeaderItem
-import androidx.paging.map
+import androidx.paging.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -77,24 +74,17 @@ class PostViewModel @Inject constructor(
     val edited = MutableLiveData(empty)
     var draft = ""
 
-
-
-//    val newerCount: LiveData<Int> = data.switchMap {
-//        repository.getNewerCount(it?.id ?: 0L)
-//            .catch { e -> e.printStackTrace() }
-//            .asLiveData(Dispatchers.Default)
-//    }
+    val newerCount: LiveData<Int> = data.asLiveData().switchMap {
+         repository.getNewerCount()
+            .catch { e -> e.printStackTrace() }
+            .asLiveData(Dispatchers.Default)
+            .also { println("PVM newer work") }
+    }
 
     private val _photo = MutableLiveData(noPhoto)
     val photo: LiveData<PhotoModel>
         get() = _photo
 
-//    init {
-//        viewModelScope.launch {
-//            repository.fillInDb()
-//        }
-//        loadPosts()
-//    }
 
     fun forAuthenticated() {
         edited.postValue(empty.copy(authorId = appAuth.authStateFlow.value.id))
@@ -116,16 +106,6 @@ class PostViewModel @Inject constructor(
         } catch (e: Exception) {
             println("PW $e")
             return@launch
-        }
-    }
-
-    fun refreshPosts() = viewModelScope.launch {
-        try {
-            _dataState.value = FeedModelState(refreshing = true)
-            repository.getAll()
-            _dataState.value = FeedModelState()
-        } catch (e: Exception) {
-            _dataState.value = FeedModelState( msg = "Refreshing error")
         }
     }
 

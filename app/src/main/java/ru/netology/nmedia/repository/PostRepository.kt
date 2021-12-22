@@ -1,7 +1,6 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.LiveData
-import androidx.paging.PagedList
+
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.dto.Media
@@ -13,7 +12,7 @@ interface PostRepository {
 //                 **************              READ
     suspend fun getAll()
 
-    fun getNewerCount(id: Long): Flow<Int>
+    fun getNewerCount(): Flow<Int>
 
 //             ***************                UPDATE
 

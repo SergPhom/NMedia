@@ -41,6 +41,7 @@ class PostsAdapter(
             LayoutInflater.from(parent.context), parent, false)
         return PostViewHolder(binding, callback)
     }
+
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<Post>() {
             override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
