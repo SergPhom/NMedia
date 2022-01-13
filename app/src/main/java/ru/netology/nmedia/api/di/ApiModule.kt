@@ -21,7 +21,7 @@ import javax.inject.Singleton
 @Module
 object ApiModule {
 
-    private const val BASE_URL = "${BuildConfig.BASE_URL}/api/" +
+    private const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/" +
 //        "slow/" +
             ""
 

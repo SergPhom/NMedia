@@ -34,9 +34,7 @@ class AuthViewModel @Inject constructor(
     fun getToken(login: String, pass: String): Boolean{
         viewModelScope.launch {
             try {
-                val response = usersApiService.getToken(
-                    login,pass
-                )
+                val response = usersApiService.getToken(login,pass)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
@@ -47,7 +45,7 @@ class AuthViewModel @Inject constructor(
             } catch (e: Exception) {
                 throw UnknownError
             } catch (e: Throwable) {
-                println ("AVM e 2 $e")                                                       ////
+                println ("AVM e 2 $e")
             }
         }
         return true

@@ -1,19 +1,17 @@
 package ru.netology.nmedia.repository
 
-import android.content.Context
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.map
-import com.github.javafaker.Faker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.api.*
 import ru.netology.nmedia.dao.PostDao
-import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
@@ -27,16 +25,15 @@ import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
     private val dao: PostDao,
-    private val postsApiService: PostsApiService
+    private val keyDao: PostRemoteKeyDao,
+    private val postsApiService: PostsApiService,
+    pager: Pager<Int, PostEntity>
 ): PostRepository {
 
-    override val data = Pager(
-        PagingConfig(pageSize = 30, enablePlaceholders = false),
-        pagingSourceFactory = {
-            PostPagingSource(dao)
-        }
-    )
+    @OptIn(ExperimentalPagingApi::class)
+    override val data = pager
         .flow
+        .map { it.map(PostEntity::toDto) }
         .catch { println(it.stackTrace) }
         .flowOn(Dispatchers.Default)
 
@@ -60,16 +57,17 @@ class PostRepositoryImpl @Inject constructor(
         dao.allViewedTrue()
     }
 
-    override fun getNewerCount(id: Long): Flow<Int> = flow {
+    override fun getNewerCount(): Flow<Int> = flow {
         while (true) {
             delay(10000L)
-            val response = postsApiService.getNewer(id)
+            val maxKeyId = keyDao.max() ?: 0L
+            val response = postsApiService.getNewer(maxKeyId)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            dao.insert(body.toEntity())
-            emit(dao.notViewedCount())
+            val maxBodyId = body.last().id
+            emit((maxBodyId - maxKeyId).toInt())
         }
     }
         .catch { e -> throw AppError.from(e) }
@@ -77,23 +75,13 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun savePost(post: Post) {
         try {
-//            val lessId = data.first()
-//                .minOf { it.id }
-//            if (post.id == 0L) {
-//                dao.insert(PostEntity.fromDto(post.copy(id = lessId - 2L)))
-//            } else {
-                dao.insert(PostEntity.fromDto(post))
-//            }
-//            val _post = if (post.id < 0) post.copy(id = 0L) else post
-//            val response = postsApiService.save(_post)
-//            if (!response.isSuccessful) {
-//                throw ApiError(response.code(), response.message())
-//            }
-//
-//            val body = response.body() ?: throw ApiError(response.code(), response.message())
-//            dao.onRemoveClick(post.id)
-            dao.insert(PostEntity.fromDto(post))
-//            postsApiService.pushes()
+            val response = postsApiService.save(post)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(PostEntity.fromDto(body))
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
@@ -118,13 +106,13 @@ class PostRepositoryImpl @Inject constructor(
     //                                                                     ***LIKE/DISLIKE****
     override suspend fun likeById(id: Long) {
         try {
-//            val response = postsApiService.likeById(id)
-//            if (!response.isSuccessful) {
-//                throw ApiError(response.code(), response.message())
-//            }
-//
-//            val body = response.body() ?: throw ApiError(response.code(), response.message())
-//            dao.insert(PostEntity.fromDto(body.copy(viewed = true)))
+            val response = postsApiService.likeById(id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(PostEntity.fromDto(body.copy(viewed = true)))
             dao.onLikeButtonClick(id)
         } catch (e: IOException) {
             throw NetworkError
@@ -135,13 +123,13 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun dislikeById(id: Long) {
         try {
-//            val response = postsApiService.dislikeById(id)
-//            if (!response.isSuccessful) {
-//                throw ApiError(response.code(), response.message())
-//            }
-//
-//            val body = response.body() ?: throw ApiError(response.code(), response.message())
-//            dao.insert(PostEntity.fromDto(body).copy(viewed = true))
+            val response = postsApiService.dislikeById(id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(PostEntity.fromDto(body).copy(viewed = true))
             dao.onLikeButtonClick(id)
         } catch (e: IOException) {
             throw NetworkError
@@ -153,10 +141,10 @@ class PostRepositoryImpl @Inject constructor(
     //                                                                                ****REMOVE*****
     override suspend fun removeById(id: Long) {
         try {
-//            val response = postsApiService.removeById(id)
-//            if (!response.isSuccessful) {
-//                throw ApiError(response.code(), response.message())
-//            }
+            val response = postsApiService.removeById(id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
             dao.onRemoveClick(id)
         } catch (e: IOException) {
             throw NetworkError
@@ -168,13 +156,13 @@ class PostRepositoryImpl @Inject constructor(
     //                                                                             *******SHARE*****
     override suspend fun sharePost(id: Long) {
         try {
-//            val response = postsApiService.shareById(id)
-//            if (!response.isSuccessful) {
-//                throw ApiError(response.code(), response.message())
-//            }
-//
-//            val body = response.body() ?: throw ApiError(response.code(), response.message())
-//            dao.insert(PostEntity.fromDto(body))
+            val response = postsApiService.shareById(id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(PostEntity.fromDto(body))
             dao.onShareButtonClick(id)
         } catch (e: IOException) {
             throw NetworkError
@@ -200,26 +188,5 @@ class PostRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             throw UnknownError
         }
-    }
-    private val faker = Faker()
-    var posts = emptyList<PostEntity>()
-    override suspend fun fillInDb() {
-        (1..200L).forEach{
-               posts += PostEntity(
-                    id = 200L - it,
-                    authorId = 3L,
-                    author = "Game of Thrones",
-                    authorAvatar = "got.jpg",
-                    content = faker.gameOfThrones().quote(),
-                    published = 0L,
-                    likedByMe = false,
-                    likes = 0L,
-                    viewes = 20L,
-                    saved = true,
-                    viewed = true,
-                )
-            println("repo post num $it added")
-        }
-        dao.insert(posts)
     }
 }
