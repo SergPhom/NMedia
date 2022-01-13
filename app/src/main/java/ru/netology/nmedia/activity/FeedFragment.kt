@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import ru.netology.nmedia.adapter.Callback
+import ru.netology.nmedia.adapter.PostLoadingStateAdapter
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
@@ -98,7 +99,15 @@ class FeedFragment: Fragment() {
                 viewModel.save()
             }
         })
-        binding.list.adapter = adapter
+
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter{
+                adapter.retry()
+            },
+            footer = PostLoadingStateAdapter{
+                adapter.retry()
+            }
+        )
 
         //****************************************************************Observers
         viewModel.newerCount.observe(viewLifecycleOwner){
@@ -117,9 +126,7 @@ class FeedFragment: Fragment() {
         lifecycleScope.launchWhenCreated {
             adapter.loadStateFlow.collectLatest { state ->
                 binding.refresh.isRefreshing =
-                    state.refresh is LoadState.Loading ||
-                    state.prepend is LoadState.Loading ||
-                    state.append is LoadState.Loading
+                    state.refresh is LoadState.Loading
             }
         }
 
